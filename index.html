@@ -3,27 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Protocol active.">
+    <meta name="description" content="Observer active.">
     <meta name="robots" content="noindex, nofollow">
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#000000">
-    <title>☉ Protocol</title>
+    <title>☉ Hello Friend</title>
     <style>
         :root {
             --bg: #050505;
-            --fg: #e4e4e7;
+            --fg: #d4d4d8;
+            --dim: #3f3f46;
+            --mute: #18181b;
             --accent: #ffffff;
-            --mute: #3f3f46;
-            --panel-bg: rgba(10, 10, 12, 0.85);
-            --panel-border: rgba(255, 255, 255, 0.06);
-            --term-fg: #d4d4d8;
-            --term-dim: #52525b;
-            --term-err: #ef4444;
-            --term-ok: #22c55e;
-            --term-warn: #f59e0b;
-            --eye-bg: #000000;
-            --eye-iris: #18181b;
-            --glitch-color: #ff3333;
+            --warn: #eab308;
+            --err: #ef4444;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,98 +30,93 @@
             touch-action: none; 
             background: var(--bg);
             color: var(--fg);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font);
             -webkit-font-smoothing: antialiased;
             user-select: none;
             -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            transition: filter 0.8s ease, background-color 0.8s ease;
+            transition: filter 1.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        /* Состояние тревоги */
-        body.stressed { 
-            filter: grayscale(1) contrast(1.5); 
-            background-color: #0a0000;
+        /* Тревожное состояние (Отдаление и серость) */
+        body.dread { 
+            filter: grayscale(1) brightness(0.5); 
+            transform: scale(0.97);
         }
 
-        /* ================= ЧАСТИЦЫ ================= */
-        #particles-canvas {
-            position: absolute; inset: 0; z-index: 1; pointer-events: none;
-            opacity: 0.3;
-            mix-blend-mode: screen;
+        /* Шумовая текстура (атмосфера старой пленки) */
+        .noise {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* ================= ГЛАЗ ================= */
+        /* ================= 2D ГЛАЗ ================= */
         .eye-container {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 90vmin; height: 90vmin;
+            width: 80vmin; height: 80vmin;
             pointer-events: none;
             z-index: 2;
             display: flex; justify-content: center; align-items: center;
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
         
         .eye {
             width: 100%; height: 100%;
             border-radius: 50%;
-            background: var(--eye-bg);
-            box-shadow: inset 0 0 100px rgba(0,0,0,1), 0 0 50px rgba(0,0,0,0.9);
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.05);
             position: relative;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            /* Медленное дыхание глаза */
+            animation: breathe 8s infinite ease-in-out;
+            transition: transform 0.4s ease;
         }
 
-        .sclera {
-            width: 92%; height: 92%;
-            border-radius: 50%;
-            background: radial-gradient(circle, #111 0%, #000 80%);
-            display: flex; justify-content: center; align-items: center;
-            position: relative;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+        /* Дыхание (пульсация размера) */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         .iris {
-            width: 42%; height: 42%;
+            width: 55%; height: 55%;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, var(--eye-iris) 0%, #000 90%);
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.08);
             position: relative;
             display: flex; justify-content: center; align-items: center;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), width 0.4s, height 0.4s;
-            box-shadow: 0 0 30px rgba(0,0,0,0.9) inset;
-        }
-
-        .iris::before {
-            content: ""; position: absolute; inset: 0; border-radius: 50%;
-            background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(0,0,0,0.3) 15deg 30deg);
-            opacity: 0.6;
+            /* Вязкое, медленное движение */
+            transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .pupil {
-            width: 35%; height: 35%;
+            width: 40%; height: 40%;
             border-radius: 50%;
             background: #000;
-            box-shadow: 0 0 15px #000, 0 0 10px rgba(255,255,255,0.05) inset;
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), width 0.3s, height 0.3s;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 0.6s ease;
         }
 
         /* Веко */
         .eyelid {
-            position: absolute; top: -5%; left: 0;
+            position: absolute; top: -1px; left: 0;
             width: 100%; height: 0%;
             background: var(--bg);
             z-index: 10;
-            transition: height 0.1s ease-in-out;
-            border-bottom: 2px solid rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: height 0.15s ease-in-out;
         }
 
-        /* Эффекты глаза */
-        .eye.squint { transform: scale(0.9, 0.7); }
-        .eye.squint .iris { transform: scale(1.2); }
-        .eye.squint .pupil { transform: scale(0.5); }
-        .eye.dilate .pupil { transform: scale(1.5); width: 45%; height: 45%; }
+        /* Сужение зрачка (Стресс) */
+        .squint .pupil { 
+            transform: scale(0.5); 
+            border-radius: 30%;
+        }
+        .squint .iris {
+            border-color: rgba(255,255,255,0.15);
+        }
 
         /* ================= ИНТЕРФЕЙС ================= */
         .ui-layer {
@@ -136,190 +126,117 @@
             padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem 1.5rem;
             pointer-events: none;
         }
-        .ui-layer > * { pointer-events: auto; }
 
         /* Шапка */
         .header {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            width: 100%;
+            display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+            margin-top: 1rem;
+            opacity: 0;
+            animation: fadeIn 3s ease forwards;
         }
-        .title-wrap { display: flex; flex-direction: column; gap: 0.2rem; }
         .title {
-            font-size: 1.2rem; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase;
-            display: flex; align-items: center; gap: 0.5rem;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5em; text-transform: uppercase;
+            color: var(--fg); display: flex; align-items: center; gap: 0.8rem;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
-        .title span { font-size: 1.5rem; animation: pulse-logo 4s infinite; }
-        .subtitle {
-            font-size: 0.65rem; letter-spacing: 0.25em; color: var(--term-dim); text-transform: uppercase;
-        }
-
-        /* Статус-панель */
-        .status-panel {
-            display: flex; gap: 1.2rem; margin-top: 1rem;
-            font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--term-dim);
-        }
-        .status-item { display: flex; flex-direction: column; gap: 0.2rem; }
-        .status-item span:first-child { text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
-        .status-item span:last-child { color: var(--fg); font-weight: bold; }
-        .status-item.danger span:last-child { color: var(--term-err); }
-        .status-item.warning span:last-child { color: var(--term-warn); }
-
-        .action-stats {
-            display: flex; gap: 1rem; margin-top: 0.5rem;
-            font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--term-dim);
-            opacity: 0.7;
-        }
-        .action-stats span b { color: var(--fg); }
+        .title span { font-size: 1.4rem; font-weight: normal; }
 
         /* Зона кнопок */
         .spawn-zone {
             flex: 1;
             position: relative;
             width: 100%;
-            margin-top: 1.5rem;
-            overflow: hidden;
+            margin-top: 2rem;
         }
+
+        /* Случайные кнопки */
+        .ghost-btn {
+            position: absolute;
+            background: transparent;
+            border: 1px solid var(--mute);
+            color: var(--dim); padding: 0.8rem 1.5rem;
+            border-radius: 4px; font-size: 0.75rem; font-weight: 500;
+            cursor: pointer;
+            transition: all 0.4s ease; z-index: 30;
+            letter-spacing: 0.15em;
+            animation: fadeIn 1s ease;
+            backdrop-filter: blur(4px);
+        }
+        .ghost-btn:hover { border-color: var(--dim); color: var(--fg); }
+        .ghost-btn:active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+        .ghost-btn.fade-out { opacity: 0; transform: scale(0.95); }
 
         /* Лог */
         .log-panel {
             position: absolute; bottom: max(1.5rem, env(safe-area-inset-bottom)); left: 1.5rem;
-            width: calc(100% - 3rem); max-width: 360px;
-            height: 150px;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 0.8rem 1rem;
-            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-            font-size: 0.75rem; line-height: 1.5;
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            width: calc(100% - 3rem); max-width: 380px;
+            height: 160px;
+            border-left: 1px solid var(--mute);
+            padding: 0.5rem 1rem;
+            font-family: var(--mono);
+            font-size: 0.7rem; line-height: 1.6;
             overflow-y: auto;
-            display: flex; flex-direction: column; gap: 4px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; gap: 6px;
             z-index: 20;
-            mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 100%);
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
+            opacity: 0;
+            animation: fadeIn 4s ease 1s forwards;
         }
-        .log-panel::-webkit-scrollbar { width: 4px; }
-        .log-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .log-panel::-webkit-scrollbar { display: none; }
         
-        .log-entry { color: var(--term-dim); animation: fadeIn 0.2s ease; }
-        .log-entry.active { color: var(--term-fg); }
-        .log-entry.warn { color: var(--term-warn); }
-        .log-entry.err { color: var(--term-err); font-weight: bold; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
-        .log-entry.ok { color: var(--term-ok); }
-        .log-time { opacity: 0.3; margin-right: 0.5rem; }
+        .log-entry { color: var(--dim); animation: slideUp 0.4s ease forwards; opacity: 0; transform: translateY(5px); }
+        .log-entry.active { color: var(--fg); }
+        .log-entry.sys { color: var(--mute); font-style: italic; }
+        .log-entry.warn { color: var(--warn); }
+        .log-entry.err { color: var(--err); }
+        
+        .log-time { opacity: 0.3; margin-right: 0.8rem; }
 
-        /* Кнопки */
-        .ghost-btn {
-            position: absolute;
-            background: rgba(15, 15, 18, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--fg); padding: 0.8rem 1.4rem;
-            border-radius: 6px; font-size: 0.8rem; font-weight: 600;
-            cursor: pointer; backdrop-filter: blur(8px);
-            transition: all 0.2s ease; z-index: 30;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
-            font-family: ui-monospace, monospace;
-            letter-spacing: 0.1em;
-        }
-        .ghost-btn:active { transform: scale(0.92); background: #fff; color: #000; }
-        .ghost-btn.fade-out { animation: popOut 0.3s ease forwards; }
-        .ghost-btn.danger { border-color: rgba(239, 68, 68, 0.5); color: var(--term-err); }
-        .ghost-btn.danger:active { background: var(--term-err); color: #fff; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes popOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.9); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse-logo { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
-
-        /* ================= ГЛИТЧИ И ЭФФЕКТЫ ================= */
-        .glitch-layer {
+        /* Легкий глитч */
+        .glitch-overlay {
             position: fixed; inset: 0; z-index: 999; pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px);
             opacity: 0;
-            mix-blend-mode: difference;
-            background: rgba(255, 0, 0, 0.1);
+            mix-blend-mode: screen;
         }
-        
-        .glitch-active {
-            animation: glitch-anim 0.25s linear;
-        }
-
+        .glitch-active { animation: glitch-anim 0.15s linear; }
         @keyframes glitch-anim {
-            0% { opacity: 0.8; transform: translate(0); }
-            20% { opacity: 0.9; transform: translate(-5px, 2px); background: rgba(0,255,0,0.1); }
-            40% { opacity: 0.8; transform: translate(5px, -2px); background: rgba(0,0,255,0.1); }
-            60% { opacity: 0.9; transform: translate(-2px, -5px); background: transparent; }
-            80% { opacity: 0.8; transform: translate(2px, 5px); background: transparent; }
-            100% { opacity: 0; transform: translate(0); }
-        }
-
-        .shake { animation: shake-anim 0.3s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake-anim {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
-            40%, 60% { transform: translate3d(8px, 0, 0); }
-        }
-
-        .matrix-char {
-            position: absolute;
-            color: var(--fg);
-            font-family: monospace;
-            font-size: 1.2rem;
-            pointer-events: none;
-            opacity: 0;
-            z-index: 15;
-            text-shadow: 0 0 8px rgba(255,255,255,0.8);
+            0% { opacity: 0.8; transform: translateY(-2px); }
+            50% { opacity: 0.4; transform: translateY(2px); }
+            100% { opacity: 0; transform: translateY(0); }
         }
 
         @media (max-width: 600px) {
-            .title { font-size: 1rem; }
-            .log-panel { height: 130px; font-size: 0.7rem; }
-            .eye-container { width: 110vw; height: 110vw; }
-            .status-panel { gap: 0.8rem; }
+            .eye-container { width: 95vmin; height: 95vmin; }
+            .log-panel { height: 130px; font-size: 0.65rem; }
+            .title { font-size: 0.9rem; letter-spacing: 0.3em; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="particles-canvas"></canvas>
-    <div class="glitch-layer" id="glitchLayer"></div>
+    <div class="noise"></div>
+    <div class="glitch-overlay" id="glitchOverlay"></div>
 
-    <div class="eye-container" id="eyeContainer">
+    <!-- Глаз -->
+    <div class="eye-container">
         <div class="eye" id="eye">
-            <div class="sclera">
-                <div class="iris" id="iris">
-                    <div class="pupil" id="pupil"></div>
-                </div>
+            <div class="iris" id="iris">
+                <div class="pupil" id="pupil"></div>
             </div>
             <div class="eyelid" id="eyelid"></div>
         </div>
     </div>
 
+    <!-- Интерфейс -->
     <div class="ui-layer">
         <header class="header">
-            <div class="title-wrap">
-                <div class="title"><span>☉</span> Protocol</div>
-                <div class="subtitle">observer // active</div>
-            </div>
-            <div class="status-panel" style="margin-left: auto; text-align: right; pointer-events: none;">
-                <div class="status-item" id="status-time">
-                    <span>time</span>
-                    <span>00:00</span>
-                </div>
-                <div class="status-item" id="status-anomaly">
-                    <span>stress</span>
-                    <span>0%</span>
-                </div>
-            </div>
+            <div class="title"><span>☉</span> Hello Friend</div>
         </header>
-
-        <div class="action-stats" id="actions-status">
-            <!-- JS заполнит -->
-        </div>
 
         <div class="spawn-zone" id="spawnZone"></div>
         <div class="log-panel" id="logPanel"></div>
@@ -329,369 +246,215 @@
         (() => {
             "use strict";
 
-            // === Конфигурация ===
-            const CONFIG = {
-                idleThreshold: 7000,      
-                spawnInterval: 4000,      
-                maxButtons: 2,            
-                maxAnomaly: 100,
-            };
-
-            // === Элементы ===
+            const eye = document.getElementById('eye');
             const iris = document.getElementById('iris');
             const pupil = document.getElementById('pupil');
             const eyelid = document.getElementById('eyelid');
-            const eye = document.getElementById('eye');
             const logPanel = document.getElementById('logPanel');
-            const glitchLayer = document.getElementById('glitchLayer');
+            const glitchOverlay = document.getElementById('glitchOverlay');
             const spawnZone = document.getElementById('spawnZone');
             const body = document.body;
-            
-            const statTime = document.querySelector('#status-time span:last-child');
-            const statAnomaly = document.querySelector('#status-anomaly span:last-child');
-            const statAnomalyParent = document.getElementById('status-anomaly');
-            const actionsStatus = document.getElementById('actions-status');
 
-            // === Состояние ===
-            const state = {
-                startTime: Date.now(),
-                clicks: 0,
-                mouseMoves: 0,
-                keys: 0,
-                anomaly: 0, 
-                isIdle: false,
-                lastActionTime: Date.now(),
-                eyeTargetX: 0, eyeTargetY: 0,
-                eyeCurrentX: 0, eyeCurrentY: 0,
-                isBlinking: false,
-                frameId: null
-            };
+            let lastActionTime = Date.now();
+            let isIdle = false;
+            let moveCount = 0;
 
-            // === Лог ===
-            function addLog(text, type = 'active') {
-                const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-                const el = document.createElement('div');
-                el.className = `log-entry ${type}`;
-                el.innerHTML = `<span class="log-time">[${time}]</span> ${text}`;
-                logPanel.appendChild(el);
-                logPanel.scrollTop = logPanel.scrollHeight;
-                if (logPanel.children.length > 30) logPanel.removeChild(logPanel.firstChild);
+            // === ЛОГ ===
+            function addLog(text, type = 'active', delay = 0) {
+                setTimeout(() => {
+                    const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
+                    const el = document.createElement('div');
+                    el.className = `log-entry ${type}`;
+                    el.innerHTML = `<span class="log-time">${time}</span> ${text}`;
+                    logPanel.appendChild(el);
+                    logPanel.scrollTop = logPanel.scrollHeight;
+                    
+                    if (logPanel.children.length > 20) {
+                        logPanel.removeChild(logPanel.firstChild);
+                    }
+                }, delay);
             }
 
-            // === Аномалия ===
-            function addAnomaly(amount) {
-                state.anomaly = Math.min(CONFIG.maxAnomaly, state.anomaly + amount);
-                statAnomaly.textContent = `${Math.floor(state.anomaly)}%`;
-                
-                if (state.anomaly > 50) statAnomalyParent.classList.add('danger');
-                else if (state.anomaly > 20) statAnomalyParent.classList.add('warning');
-
-                if (state.anomaly > 70) body.classList.add('stressed');
-                
-                // Критический уровень: сильная тряска
-                if (state.anomaly >= 100) {
-                    triggerGlitch(true);
-                    addLog("КРИТИЧЕСКИЙ УРОВЕНЬ СТРЕССА. СБРОС.", "err");
-                    state.anomaly = 0;
-                    statAnomaly.textContent = `0%`;
-                    body.classList.remove('stressed');
-                    statAnomalyParent.classList.remove('danger', 'warning');
-                }
-            }
-
-            function decayAnomaly() {
-                if (state.anomaly > 0 && Date.now() - state.lastActionTime > 3000) {
-                    state.anomaly = Math.max(0, state.anomaly - 0.3);
-                    statAnomaly.textContent = `${Math.floor(state.anomaly)}%`;
-                    if (state.anomaly <= 20) statAnomalyParent.classList.remove('warning');
-                    if (state.anomaly <= 50) statAnomalyParent.classList.remove('danger');
-                    if (state.anomaly <= 70) body.classList.remove('stressed');
-                }
-            }
-
-            // === Глаз ===
-            function moveEyeRandomly() {
-                // Если пользователь неактивен, глаз смотрит по сторонам
-                const angle = Math.random() * Math.PI * 2;
-                const radius = Math.random() * (state.anomaly > 50 ? 25 : 15);
-                state.eyeTargetX = Math.cos(angle) * radius;
-                state.eyeTargetY = Math.sin(angle) * radius;
-            }
-
-            function animateEye() {
-                state.eyeCurrentX += (state.eyeTargetX - state.eyeCurrentX) * 0.06;
-                state.eyeCurrentY += (state.eyeTargetY - state.eyeCurrentY) * 0.06;
-                iris.style.transform = `translate(${state.eyeCurrentX}%, ${state.eyeCurrentY}%)`;
-                state.frameId = requestAnimationFrame(animateEye);
-            }
-
+            // === ГЛАЗ ===
             function blink() {
-                if (state.isBlinking) return;
-                state.isBlinking = true;
+                // Если глаз уже моргает, пропускаем
+                if (eyelid.style.height === '100%') return;
+                
                 eyelid.style.height = '100%';
                 setTimeout(() => { 
                     eyelid.style.height = '0%'; 
-                    state.isBlinking = false;
-                }, 120);
+                }, 150);
+                
+                // Следующее моргание через 4-8 секунд
+                setTimeout(blink, 4000 + Math.random() * 4000);
             }
 
-            function squint() {
+            function lookAround() {
+                if (isIdle) return; // Если пользователь замер, глаз не отводим
+                
+                // Движение по X и Y (в процентах) - плавное
+                const moveX = (Math.random() - 0.5) * 40;
+                const moveY = (Math.random() - 0.5) * 30;
+                iris.style.transform = `translate(${moveX}%, ${moveY}%)`;
+                
+                setTimeout(lookAround, 3000 + Math.random() * 4000);
+            }
+
+            // Реакция зрачка на действие (сужение)
+            function reactPupil(scale) {
+                pupil.style.transform = `scale(${scale})`;
+                setTimeout(() => { pupil.style.transform = `scale(1)`; }, 600);
+            }
+
+            // === ТРЕВОГА ===
+            function triggerDread() {
+                // Сужение зрачка
                 eye.classList.add('squint');
-                setTimeout(() => eye.classList.remove('squint'), 400);
-            }
-
-            function dilate() {
-                eye.classList.add('dilate');
-                setTimeout(() => eye.classList.remove('dilate'), 600);
-            }
-
-            // === Частицы ===
-            const canvas = document.getElementById('particles-canvas');
-            const ctx = canvas.getContext('2d', { alpha: false }); // Оптимизация
-            let particles = [];
-            
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            class Particle {
-                constructor() { this.reset(true); }
-                reset(randomY = false) {
-                    this.x = Math.random() * canvas.width;
-                    this.y = randomY ? Math.random() * canvas.height : -10;
-                    this.size = Math.random() * 1.5 + 0.5;
-                    this.speedY = Math.random() * 0.4 + 0.1;
-                    this.speedX = (Math.random() - 0.5) * 0.2;
-                    this.opacity = Math.random() * 0.4 + 0.05;
-                }
-                update() {
-                    this.y += this.speedY;
-                    this.x += this.speedX;
-                    if (this.y > canvas.height + 10) this.reset();
-                }
-                draw() {
-                    ctx.fillStyle = `rgba(200, 200, 200, ${this.opacity})`;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            for (let i = 0; i < 60; i++) particles.push(new Particle());
-
-            let lastTime = 0;
-            function animateParticles(time) {
-                requestAnimationFrame(animateParticles);
-                // Ограничиваем FPS для экономии батареи (30 fps)
-                if (time - lastTime < 33) return; 
-                lastTime = time;
-
-                ctx.fillStyle = '#050505'; // Очистка через заливку фона
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                particles.forEach(p => { p.update(); p.draw(); });
-            }
-            requestAnimationFrame(animateParticles);
-
-            // === Символы ===
-            function spawnSymbols(x, y, count = 5, isGlitch = false) {
-                const chars = ['0', '1', '#', '@', '$', '%', '&', '?', 'X', 'Z', '☉', 'ERR'];
-                for (let i = 0; i < count; i++) {
-                    const el = document.createElement('div');
-                    el.className = 'matrix-char';
-                    el.textContent = chars[Math.floor(Math.random() * chars.length)];
-                    
-                    const spread = isGlitch ? 200 : 50;
-                    el.style.left = `${x + (Math.random() - 0.5) * spread}px`;
-                    el.style.top = `${y + (Math.random() - 0.5) * spread}px`;
-                    el.style.color = isGlitch && Math.random() > 0.5 ? 'var(--term-err)' : 'var(--fg)';
-                    
-                    const duration = 1000 + Math.random() * 1000;
-                    const anim = el.animate([
-                        { opacity: 0.8, transform: `translateY(0) scale(1)` },
-                        { opacity: 0, transform: `translateY(-${50 + Math.random()*100}px) scale(1.5)` }
-                    ], { duration, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' });
-                    
-                    anim.onfinish = () => el.remove();
-                    document.body.appendChild(el);
-                }
-            }
-
-            // === Глитчи ===
-            function triggerGlitch(heavy = false) {
-                glitchLayer.classList.remove('glitch-active');
-                void glitchLayer.offsetWidth;
-                glitchLayer.classList.add('glitch-active');
+                // Отдаление и серость
+                body.classList.add('dread');
                 
-                if (heavy) {
-                    body.classList.add('shake');
-                    setTimeout(() => body.classList.remove('shake'), 300);
-                    spawnSymbols(window.innerWidth/2, window.innerHeight/2, 15, true);
-                    dilate();
-                }
+                // Легкий глитч
+                glitchOverlay.classList.remove('glitch-active');
+                void glitchOverlay.offsetWidth;
+                glitchOverlay.classList.add('glitch-active');
+
+                // Возврат через 2 секунды
+                setTimeout(() => {
+                    eye.classList.remove('squint');
+                    body.classList.remove('dread');
+                }, 2000);
             }
 
-            // === Отслеживание ===
+            // === ОТСЛЕЖИВАНИЕ ДЕЙСТВИЙ ===
             function resetIdle() {
-                if (Date.now() - state.lastActionTime > CONFIG.idleThreshold && state.isIdle) {
-                    state.isIdle = false;
-                    addLog("субъект вернулся.", "ok");
-                    state.eyeTargetX = 0; state.eyeTargetY = 0;
+                if (isIdle) {
+                    isIdle = false;
+                    addLog("Субъект вернулся в поле зрения.", "sys");
+                    lookAround(); // Глаз снова начинает блуждать
                 }
-                state.lastActionTime = Date.now();
+                lastActionTime = Date.now();
             }
 
+            let moveTimeout;
             window.addEventListener('pointermove', () => {
-                if (state.mouseMoves % 5 === 0) resetIdle(); // Троттлинг
-                state.mouseMoves++;
+                resetIdle();
+                
+                // Логируем движения с задержкой, чтобы не спамить
+                clearTimeout(moveTimeout);
+                moveTimeout = setTimeout(() => {
+                    moveCount++;
+                    if (moveCount % 3 === 0) {
+                        addLog("Зафиксировано перемещение.", "active");
+                    }
+                }, 1000);
             }, { passive: true });
 
             document.addEventListener('pointerdown', (e) => {
-                if (e.target.closest('.log-panel')) return;
-                
-                state.clicks++;
+                if (e.target.closest('.log-panel') || e.target.closest('.ghost-btn')) return;
                 resetIdle();
-                squint();
-                addAnomaly(5); 
-                
-                // Глаз смотрит на точку клика
-                const cx = window.innerWidth / 2;
-                const cy = window.innerHeight / 2;
-                const dx = e.clientX - cx;
-                const dy = e.clientY - cy;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist > 0) {
-                    state.eyeTargetX = (dx / dist) * 25;
-                    state.eyeTargetY = (dy / dist) * 25;
-                }
-
-                if (state.clicks % 8 === 0) {
-                    triggerGlitch(true);
-                    addLog(`аномальная активность.`, "warn");
-                }
+                addLog("Резкое движение. Тактильный контакт.", "active");
+                reactPupil(0.6);
             }, { passive: true });
 
             document.addEventListener('keydown', () => {
-                state.keys++;
                 resetIdle();
-                squint();
-                addAnomaly(3);
+                addLog("Активность клавиатуры.", "active");
+                reactPupil(0.7);
             }, { passive: true });
 
-            // === Кнопки ===
-            const buttonTexts = [
-                "Кто здесь?", "Не оборачивайся", "Ты один?", "Я вижу тебя", 
-                "Закрой глаза", "Помоги мне", "Это не игра", "Выход", 
-                "Сзади", "Слушай", "Смотри вверх", "Не двигайся", "ERR", "NULL"
-            ];
+            // === БЕЗДЕЙСТВИЕ ===
+            setInterval(() => {
+                const idleTime = Date.now() - lastActionTime;
+                
+                if (idleTime > 7000 && !isIdle) {
+                    isIdle = true;
+                    addLog("Движение отсутствует. Сканирование...", "warn");
+                    
+                    // Глаз смотрит прямо в центр
+                    iris.style.transform = `translate(0%, 0%)`;
+                    
+                    // Эффект тревоги
+                    setTimeout(() => {
+                        triggerDread();
+                        addLog("Ты здесь?", "err");
+                    }, 3000);
 
+                    // Если долго не двигается - зрачок расширяется (вглядывается)
+                    setTimeout(() => {
+                        if (isIdle) {
+                            reactPupil(1.5);
+                            addLog("Фокус на субъекте.", "sys");
+                        }
+                    }, 5000);
+                }
+            }, 1000);
+
+            // === КНОПКИ ===
+            const texts = ["Оглянись", "Сзади", "Тише", "Я здесь", "Не двигайся", "Пусто"];
+            
             function spawnButton() {
-                if (document.querySelectorAll('.ghost-btn').length >= CONFIG.maxButtons) return;
+                if (document.querySelectorAll('.ghost-btn').length >= 1) return;
 
                 const btn = document.createElement('button');
-                const isDanger = Math.random() > 0.7;
-                btn.className = `ghost-btn ${isDanger ? 'danger' : ''}`;
-                btn.textContent = buttonTexts[Math.floor(Math.random() * buttonTexts.length)];
+                btn.className = 'ghost-btn';
+                btn.textContent = texts[Math.floor(Math.random() * texts.length)];
                 
-                const zoneRect = spawnZone.getBoundingClientRect();
-                const btnWidth = 140, btnHeight = 50, pad = 20;
-                
-                const x = pad + Math.random() * Math.max(0, zoneRect.width - btnWidth - pad * 2);
-                const y = pad + Math.random() * Math.max(0, zoneRect.height - btnHeight - pad * 2);
+                const rect = spawnZone.getBoundingClientRect();
+                const x = 20 + Math.random() * Math.max(0, rect.width - 120);
+                const y = 20 + Math.random() * Math.max(0, rect.height - 50);
                 
                 btn.style.left = `${x}px`;
                 btn.style.top = `${y}px`;
 
                 btn.addEventListener('pointerdown', (e) => {
                     e.stopPropagation();
-                    const msg = btn.textContent;
-                    btn.classList.add('fade-out');
-                    
-                    triggerGlitch(isDanger);
-                    addAnomaly(isDanger ? 25 : 10);
-                    addLog(`> "${msg}"`, isDanger ? "err" : "warn");
-                    spawnSymbols(e.clientX, e.clientY, isDanger ? 12 : 6, isDanger);
-                    
-                    if (isDanger) dilate();
-
-                    setTimeout(() => btn.remove(), 300);
+                    addLog(`Нажатие: "${btn.textContent}"`, "warn");
+                    triggerDread();
+                    btn.remove();
                 });
 
                 spawnZone.appendChild(btn);
                 
+                // Кнопка исчезает через 6 секунд
                 setTimeout(() => {
                     if (btn.parentNode) {
                         btn.classList.add('fade-out');
-                        setTimeout(() => btn.remove(), 300);
+                        setTimeout(() => btn.remove(), 400);
                     }
-                }, 4000 + Math.random() * 3000);
+                }, 6000);
             }
 
-            // === Главный цикл (1000ms) ===
+            // === ФОНОВЫЕ СОБЫТИЯ ===
             setInterval(() => {
-                // Таймер
-                const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-                const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
-                const s = String(elapsed % 60).padStart(2, '0');
-                statTime.textContent = `${m}:${s}`;
-
-                // Статистика
-                actionsStatus.innerHTML = `
-                    <span>CLICKS: <b>${state.clicks}</b></span>
-                    <span>MOVES: <b>${state.mouseMoves}</b></span>
-                    <span>KEYS: <b>${state.keys}</b></span>
-                `;
-
-                // Логика
-                decayAnomaly();
-
-                if (Date.now() - state.lastActionTime > CONFIG.idleThreshold && !state.isIdle) {
-                    state.isIdle = true;
-                    addLog("движение отсутствует. фиксация...", "warn");
-                    addAnomaly(10);
-                    
-                    state.eyeTargetX = 0; state.eyeTargetY = 0;
-                    dilate();
-                    
-                    setTimeout(() => {
-                        if (state.isIdle) {
-                            addLog("ты здесь?", "err");
-                            triggerGlitch();
-                        }
-                    }, 3000);
+                // Кнопки появляются редко
+                if (Math.random() > 0.7) spawnButton();
+                
+                // Случайные помехи
+                if (Math.random() > 0.9) {
+                    addLog("Сбой сигнала...", "warn");
+                    glitchOverlay.classList.remove('glitch-active');
+                    void glitchOverlay.offsetWidth;
+                    glitchOverlay.classList.add('glitch-active');
                 }
+            }, 5000);
 
-                // Рандом
-                if (Math.random() > 0.6) spawnButton();
-                if (Math.random() > 0.95) triggerGlitch();
-                if (Math.random() > 0.8) moveEyeRandomly();
+            // === СТАРТ ===
+            // Задержка перед первым логом (система "просыпается")
+            addLog("Соединение...", "sys", 500);
+            addLog("Наблюдение активно.", "sys", 1500);
+            addLog("Ожидание.", "sys", 3000);
+            
+            setTimeout(blink, 2000);
+            lookAround();
 
-            }, 1000);
-
-            // Случайное моргание
-            setInterval(() => {
-                if (Math.random() > 0.5) blink();
-            }, 3000);
-
-            // Защита
-            document.addEventListener('selectstart', (e) => e.preventDefault());
+            // Защита от F12
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'C')) {
-                    triggerGlitch(true);
-                    addAnomaly(40);
-                    addLog("ПОПЫТКА ВТОРЖЕНИЯ В КОД.", "err");
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                    addLog("Попытка вмешательства.", "err");
+                    triggerDread();
                 }
             });
-
-            // Старт
-            addLog("соединение установлено.");
-            addLog("наблюдение начато.", "ok");
-            setTimeout(() => addLog("обнаружено движение.", "active"), 2000);
-            
-            animateEye();
 
         })();
     </script>
