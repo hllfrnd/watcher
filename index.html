@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Оно видит тебя.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#09090b">
+    <title>☉ Hello Friend — Watcher</title>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #f4f4f5;
+            --bg-gradient: radial-gradient(circle at 50% 50%, #ffffff 0%, #f4f4f5 100%);
+            --fg: #18181b;
+            --accent: #3f3f46;
+            --mute: #a1a1aa;
+            --panel-bg: rgba(255, 255, 255, 0.65);
+            --panel-border: rgba(0, 0, 0, 0.08);
+            --btn-bg: rgba(255, 255, 255, 0.85);
+            --term-fg: #3f3f46;
+            --term-dim: #71717a;
+            --term-err: #dc2626;
+            --term-ok: #16a34a;
+            --eye-bg: #e4e4e7;
+            --eye-iris: #52525b;
+            --glitch-r: #ff0000;
+            --glitch-b: #0000ff;
+        }
+        [data-theme="dark"] {
+            --bg: #000000;
+            --bg-gradient: radial-gradient(circle at 50% 50%, #111111 0%, #000000 100%);
+            --fg: #f4f4f5;
+            --accent: #d4d4d8;
+            --mute: #52525b;
+            --panel-bg: rgba(15, 15, 17, 0.75);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --btn-bg: rgba(24, 24, 27, 0.85);
+            --term-fg: #d4d4d8;
+            --term-dim: #52525b;
+            --term-err: #ef4444;
+            --term-ok: #22c55e;
+            --eye-bg: #09090b;
+            --eye-iris: #27272a;
+            --glitch-r: #ff3333;
+            --glitch-b: #3333ff;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            height: 100%; 
+            height: 100dvh; 
+            overflow: hidden; 
+            touch-action: none; /* Убираем скролл и зум на мобильных */
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            background-color: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--fg);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* ================= ФОНОВЫЙ ГЛАЗ ================= */
+        .eye-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vmin; height: 90vmin;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+            transition: opacity 1s ease;
+        }
+        
+        .eye {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: var(--eye-bg);
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.4);
+            position: relative;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+            animation: breathe-eye 8s infinite ease-in-out;
+        }
+
+        .iris {
+            width: 40%; height: 40%;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--eye-iris) 0%, #000 100%);
+            position: relative;
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .pupil {
+            width: 35%; height: 35%;
+            border-radius: 50%;
+            background: #000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.9);
+            transition: transform 0.3s ease;
+        }
+
+        /* Веко */
+        .eyelid {
+            position: absolute; top: -5%; left: 0;
+            width: 100%; height: 0%;
+            background: var(--bg);
+            z-index: 10;
+            transition: height 0.15s ease;
+        }
+
+        @keyframes breathe-eye {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* ================= ИНТЕРФЕЙС ================= */
+        .ui-layer {
+            position: relative; z-index: 10;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem 1.5rem;
+            pointer-events: none;
+        }
+        .ui-layer > * { pointer-events: auto; }
+
+        /* Шапка */
+        .header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            width: 100%;
+        }
+        .title-wrap {
+            display: flex; flex-direction: column; gap: 0.2rem;
+        }
+        .title {
+            font-size: 1.2rem; font-weight: 900; letter-spacing: 0.25em; text-transform: uppercase;
+            display: flex; align-items: center; gap: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .title span { font-size: 1.5rem; animation: pulse-logo 4s infinite; }
+        .subtitle {
+            font-size: 0.7rem; letter-spacing: 0.2em; color: var(--mute); text-transform: uppercase;
+        }
+
+        .theme-toggle {
+            background: var(--panel-bg); border: 1px solid var(--panel-border);
+            color: var(--fg); border-radius: 50%; width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.2rem; transition: all 0.2s ease;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover { border-color: var(--fg); transform: scale(1.05); }
+        .theme-toggle:active { transform: scale(0.95); }
+
+        /* Зона для случайных кнопок (строго ниже названия) */
+        .spawn-zone {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* Лог действий (Терминал) */
+        .log-panel {
+            position: absolute; bottom: max(1.5rem, env(safe-area-inset-bottom)); left: 1.5rem;
+            width: calc(100% - 3rem); max-width: 340px;
+            height: 140px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.75rem; line-height: 1.5;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            z-index: 20;
+        }
+        .log-panel::-webkit-scrollbar { width: 4px; }
+        .log-panel::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 2px; }
+        
+        .log-entry { color: var(--term-dim); animation: fadeIn 0.3s ease; }
+        .log-entry.active { color: var(--term-fg); }
+        .log-entry.warn { color: var(--term-err); font-weight: bold; }
+        .log-entry.ok { color: var(--term-ok); }
+        .log-time { opacity: 0.4; margin-right: 0.4rem; }
+
+        /* Случайные кнопки */
+        .ghost-btn {
+            position: absolute;
+            background: var(--btn-bg); border: 1px solid var(--panel-border);
+            color: var(--fg); padding: 0.8rem 1.5rem;
+            border-radius: 30px; font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; backdrop-filter: blur(8px);
+            transition: all 0.3s ease; z-index: 30;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ghost-btn:active { transform: scale(0.92); }
+        .ghost-btn.fade-out { animation: popOut 0.3s ease forwards; }
+
+        @keyframes popIn { 
+            0% { opacity: 0; transform: scale(0.5) translateY(20px); } 
+            100% { opacity: 1; transform: scale(1) translateY(0); } 
+        }
+        @keyframes popOut { 
+            0% { opacity: 1; transform: scale(1); } 
+            100% { opacity: 0; transform: scale(0.8); } 
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse-logo { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; transform: scale(1.1); } }
+
+        /* Глитч-эффекты */
+        .glitch-overlay {
+            position: fixed; inset: 0; z-index: 999; pointer-events: none;
+            background: var(--fg);
+            mix-blend-mode: difference;
+            opacity: 0; 
+        }
+        .glitch-active { animation: glitch-anim 0.25s linear; }
+        
+        /* Символы (Матрица/Шум) */
+        .matrix-char {
+            position: absolute;
+            color: var(--mute);
+            font-family: monospace;
+            font-size: 1rem;
+            pointer-events: none;
+            opacity: 0;
+            animation: floatUp 3s linear forwards;
+            z-index: 5;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(0) scale(1); }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+        }
+
+        @keyframes glitch-anim {
+            0% { opacity: 0.8; transform: translate(0); }
+            20% { opacity: 0.5; transform: translate(-5px, 5px); }
+            40% { opacity: 0.8; transform: translate(5px, -5px); }
+            60% { opacity: 0.3; transform: translate(-5px, -5px); }
+            80% { opacity: 0.6; transform: translate(5px, 5px); }
+            100% { opacity: 0; transform: translate(0); }
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 600px) {
+            .title { font-size: 1.1rem; letter-spacing: 0.15em; }
+            .log-panel { height: 120px; font-size: 0.7rem; padding: 0.6rem 0.8rem; }
+            .eye-container { width: 100vw; height: 100vw; opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glitch-overlay" id="glitchOverlay"></div>
+
+    <!-- Фоновый глаз -->
+    <div class="eye-container" id="eyeContainer">
+        <div class="eye">
+            <div class="iris" id="iris">
+                <div class="pupil" id="pupil"></div>
+            </div>
+            <div class="eyelid" id="eyelid"></div>
+        </div>
+    </div>
+
+    <div class="ui-layer">
+        <!-- Шапка -->
+        <header class="header">
+            <div class="title-wrap">
+                <div class="title"><span>☉</span> Hello Friend</div>
+                <div class="subtitle">watcher protocol</div>
+            </div>
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Сменить тему">🌙</button>
+        </header>
+
+        <!-- Зона спавна кнопок (строго под шапкой) -->
+        <div class="spawn-zone" id="spawnZone"></div>
+
+        <!-- Лог -->
+        <div class="log-panel" id="logPanel"></div>
+    </div>
+
+    <script>
+        (() => {
+            "use strict";
+
+            // === Конфигурация ===
+            const CONFIG = {
+                idleThreshold: 5000,     // мс до фиксации бездействия
+                spawnInterval: 4000,     // мс между проверками на спавн кнопки
+                maxButtons: 2,           // максимум кнопок одновременно
+                glitchChance: 0.15,      // шанс случайного глитча при проверке
+            };
+
+            // === Элементы ===
+            const themeToggle = document.getElementById('themeToggle');
+            const iris = document.getElementById('iris');
+            const pupil = document.getElementById('pupil');
+            const eyelid = document.getElementById('eyelid');
+            const logPanel = document.getElementById('logPanel');
+            const glitchOverlay = document.getElementById('glitchOverlay');
+            const spawnZone = document.getElementById('spawnZone');
+
+            // === Тема ===
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            themeToggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const newTheme = isDark ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            });
+
+            // === Глаз (автономное поведение) ===
+            let targetX = 0, targetY = 0;
+            let currentX = 0, currentY = 0;
+            const maxMove = 20; // максимальное смещение в %
+
+            function moveEyeRandomly() {
+                // Генерируем случайную точку в радиусе
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * maxMove;
+                targetX = Math.cos(angle) * radius;
+                targetY = Math.sin(angle) * radius;
+                
+                // Следующее движение через 1-4 секунды
+                setTimeout(moveEyeRandomly, 1000 + Math.random() * 3000);
+            }
+
+            function animateEye() {
+                currentX += (targetX - currentX) * 0.05;
+                currentY += (targetY - currentY) * 0.05;
+                iris.style.transform = `translate(${currentX}%, ${currentY}%)`;
+                requestAnimationFrame(animateEye);
+            }
+
+            // Реакция на тап/клик в любом месте
+            document.addEventListener('pointerdown', (e) => {
+                // Не реагируем на клики по логу и кнопкам управления
+                if (e.target.closest('.log-panel') || e.target.closest('.theme-toggle') || e.target.closest('.ghost-btn')) return;
+                
+                // Глаз резко смотрит на точку клика
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const dx = e.clientX - centerX;
+                const dy = e.clientY - centerY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist > 0) {
+                    targetX = (dx / dist) * maxMove;
+                    targetY = (dy / dist) * maxMove;
+                }
+
+                // Зрачок сужается от "стресса"
+                pupil.style.transform = 'scale(0.6)';
+                setTimeout(() => pupil.style.transform = 'scale(1)', 400);
+            });
+
+            moveEyeRandomly();
+            requestAnimationFrame(animateEye);
+
+            // Моргание
+            function blink() {
+                eyelid.style.height = '100%';
+                setTimeout(() => {
+                    eyelid.style.height = '0%';
+                }, 120);
+                setTimeout(blink, 3000 + Math.random() * 6000);
+            }
+            setTimeout(blink, 2000);
+
+            // === Логирование ===
+            let lastActionTime = Date.now();
+            let isIdle = false;
+            let idleTimer;
+
+            function addLog(text, type = 'active') {
+                const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+                const el = document.createElement('div');
+                el.className = `log-entry ${type}`;
+                el.innerHTML = `<span class="log-time">[${time}]</span> ${text}`;
+                logPanel.appendChild(el);
+                logPanel.scrollTop = logPanel.scrollHeight;
+                
+                // Ограничение истории
+                if (logPanel.children.length > 25) {
+                    logPanel.removeChild(logPanel.firstChild);
+                }
+            }
+
+            function resetIdle() {
+                lastActionTime = Date.now();
+                if (isIdle) {
+                    isIdle = false;
+                    addLog("движение восстановлено.", "ok");
+                    targetX = 0; targetY = 0; // Глаз возвращается в центр
+                }
+            }
+
+            // Слушатели активности
+            window.addEventListener('pointermove', resetIdle, { passive: true });
+            window.addEventListener('touchmove', resetIdle, { passive: true });
+            window.addEventListener('keydown', resetIdle, { passive: true });
+            document.addEventListener('pointerdown', resetIdle, { passive: true });
+
+            // Проверка бездействия
+            setInterval(() => {
+                if (Date.now() - lastActionTime > CONFIG.idleThreshold && !isIdle) {
+                    isIdle = true;
+                    addLog("субъект замер.", "warn");
+                    
+                    // Глаз начинает беспокойно оглядываться
+                    targetX = maxMove * (Math.random() > 0.5 ? 1 : -1);
+                    targetY = maxMove * (Math.random() > 0.5 ? 1 : -1);
+                    
+                    setTimeout(() => {
+                        if (isIdle) addLog("ты здесь?", "warn");
+                    }, 2500);
+                }
+            }, 1000);
+
+            addLog("соединение установлено.");
+            addLog("наблюдение начато.", "ok");
+
+            // === Случайные кнопки ===
+            const buttonTexts = [
+                "Кто здесь?", "Не оборачивайся", "Ты один?", 
+                "Я вижу тебя", "Закрой глаза", "Помоги мне",
+                "Это не игра", "Выход", "Сзади", "Слушай",
+                "Не нажимай", "Смотри вверх"
+            ];
+
+            function spawnButton() {
+                if (document.querySelectorAll('.ghost-btn').length >= CONFIG.maxButtons) return;
+
+                const btn = document.createElement('button');
+                btn.className = 'ghost-btn';
+                btn.textContent = buttonTexts[Math.floor(Math.random() * buttonTexts.length)];
+                
+                // Позиция строго внутри spawn-zone
+                const zoneRect = spawnZone.getBoundingClientRect();
+                const btnWidth = 140; // Примерная ширина
+                const btnHeight = 50;
+                
+                // Отступы, чтобы кнопка не прилипала к краям
+                const pad = 20;
+                
+                const x = pad + Math.random() * (zoneRect.width - btnWidth - pad * 2);
+                const y = pad + Math.random() * (zoneRect.height - btnHeight - pad * 2);
+                
+                btn.style.left = `${Math.max(0, x)}px`;
+                btn.style.top = `${Math.max(0, y)}px`;
+
+                btn.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation();
+                    const msg = btn.textContent;
+                    btn.classList.add('fade-out');
+                    triggerGlitch();
+                    addLog(`кнопка: "${msg}"`, "warn");
+                    
+                    // Реакция на кнопку "Выход"
+                    if (msg === "Выход") {
+                        addLog("выхода нет.", "warn");
+                        document.title = "Не пытайся уйти";
+                        // Глаз смотрит прямо в центр (на тебя)
+                        targetX = 0; targetY = 0;
+                    }
+
+                    // Спавним символы при клике
+                    spawnSymbols(e.clientX, e.clientY, 5);
+                    
+                    setTimeout(() => btn.remove(), 300);
+                });
+
+                spawnZone.appendChild(btn);
+                
+                // Автоудаление
+                setTimeout(() => {
+                    if (btn.parentNode) {
+                        btn.classList.add('fade-out');
+                        setTimeout(() => btn.remove(), 300);
+                    }
+                }, 6000 + Math.random() * 4000);
+            }
+
+            setInterval(() => {
+                if (Math.random() > 0.3) spawnButton();
+                // Случайный глитч
+                if (Math.random() < CONFIG.glitchChance) triggerGlitch();
+            }, CONFIG.spawnInterval);
+
+            // === Глитчи и символы ===
+            function triggerGlitch() {
+                glitchOverlay.classList.remove('glitch-active');
+                void glitchOverlay.offsetWidth; // Триггер рефлоу
+                glitchOverlay.classList.add('glitch-active');
+            }
+
+            function spawnSymbols(x, y, count) {
+                const chars = ['0', '1', '#', '@', '$', '%', '&', '?', '!', 'X', 'Z', '☉'];
+                for (let i = 0; i < count; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'matrix-char';
+                    el.textContent = chars[Math.floor(Math.random() * chars.length)];
+                    
+                    // Разброс вокруг точки
+                    const offsetX = (Math.random() - 0.5) * 100;
+                    const offsetY = (Math.random() - 0.5) * 100;
+                    
+                    el.style.left = `${x + offsetX}px`;
+                    el.style.top = `${y + offsetY}px`;
+                    el.style.animationDelay = `${Math.random() * 0.2}s`;
+                    
+                    document.body.appendChild(el);
+                    setTimeout(() => el.remove(), 3000);
+                }
+            }
+
+            // Защита от копирования и DevTools
+            document.addEventListener('selectstart', (e) => {
+                e.preventDefault();
+                triggerGlitch();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                    triggerGlitch();
+                    addLog("попытка взлома?", "warn");
+                }
+            });
+
+            // Периодический фоновый шум (символы)
+            setInterval(() => {
+                const x = Math.random() * window.innerWidth;
+                const y = window.innerHeight - 100;
+                spawnSymbols(x, y, 1);
+            }, 2000);
+
+        })();
+    </script>
+</body>
+</html>
