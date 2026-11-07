@@ -10,15 +10,17 @@
     <title>☉ Hello Friend</title>
     <style>
         :root {
-            --bg: #050505;
-            --fg: #d4d4d8;
-            --dim: #3f3f46;
+            --bg: #030303;
+            --fg: #f4f4f5;
+            --dim: #71717a;
             --mute: #18181b;
-            --accent: #ffffff;
-            --warn: #eab308;
-            --err: #ef4444;
-            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            --accent: #a1a1aa;
+            --term-bg: rgba(5, 5, 5, 0.75);
+            --term-border: rgba(255, 255, 255, 0.08);
+            --term-text: #d4d4d8;
+            --term-sys: #52525b;
+            --term-warn: #f59e0b;
+            --term-err: #ef4444;
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,36 +32,53 @@
             touch-action: none; 
             background: var(--bg);
             color: var(--fg);
-            font-family: var(--font);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
             user-select: none;
             -webkit-user-select: none;
-            transition: filter 1.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: filter 3s ease, transform 3s ease;
         }
 
-        /* Тревожное состояние (Отдаление и серость) */
-        body.dread { 
-            filter: grayscale(1) brightness(0.5); 
+        /* Глобальные состояния паранойи */
+        body.paranoid { 
+            filter: grayscale(1) contrast(1.2) brightness(0.6); 
             transform: scale(0.97);
         }
-
-        /* Шумовая текстура (атмосфера старой пленки) */
-        .noise {
-            position: fixed; inset: 0; z-index: 1; pointer-events: none;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        body.panic { 
+            filter: grayscale(1) contrast(1.5) brightness(0.3) blur(1px); 
+            transform: scale(0.95);
+            animation: shake 0.2s infinite;
         }
 
-        /* ================= 2D ГЛАЗ ================= */
+        /* Шумовая текстура (кинопленка) */
+        .noise {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            animation: noiseShift 0.2s infinite;
+        }
+
+        /* Виньетка */
+        .vignette {
+            position: fixed; inset: 0; z-index: 5; pointer-events: none;
+            background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.9) 100%);
+            transition: background 3s ease;
+        }
+        body.panic .vignette { background: radial-gradient(circle at center, transparent 10%, rgba(0,0,0,1) 100%); }
+
+        /* ================= ГЛАЗ ================= */
         .eye-container {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 80vmin; height: 80vmin;
+            width: 90vmin; height: 90vmin;
             pointer-events: none;
             z-index: 2;
             display: flex; justify-content: center; align-items: center;
+            filter: blur(0.5px);
+            transition: filter 2s ease;
         }
+        body.paranoid .eye-container, body.panic .eye-container { filter: blur(3px); }
         
         .eye {
             width: 100%; height: 100%;
@@ -69,54 +88,43 @@
             position: relative;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
-            /* Медленное дыхание глаза */
-            animation: breathe 8s infinite ease-in-out;
-            transition: transform 0.4s ease;
-        }
-
-        /* Дыхание (пульсация размера) */
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+            animation: breathe 6s infinite ease-in-out;
         }
 
         .iris {
             width: 55%; height: 55%;
             border-radius: 50%;
-            background: #0a0a0a;
-            border: 1px solid rgba(255,255,255,0.08);
+            background: #080808;
+            border: 1px solid rgba(255,255,255,0.1);
             position: relative;
             display: flex; justify-content: center; align-items: center;
-            /* Вязкое, медленное движение */
-            transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
+        
+        /* Зрачок, который дергается при панике */
+        body.panic .iris { animation: search 0.3s infinite; }
 
         .pupil {
             width: 40%; height: 40%;
             border-radius: 50%;
             background: #000;
-            box-shadow: 0 0 15px rgba(0,0,0,0.8);
-            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 0.6s ease;
+            box-shadow: 0 0 15px rgba(0,0,0,1);
+            transition: transform 0.8s ease, border-radius 0.8s ease;
         }
 
-        /* Веко */
         .eyelid {
-            position: absolute; top: -1px; left: 0;
+            position: absolute; top: 0; left: 0;
             width: 100%; height: 0%;
             background: var(--bg);
             z-index: 10;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            transition: height 0.15s ease-in-out;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: height 0.12s ease-in-out;
         }
 
-        /* Сужение зрачка (Стресс) */
-        .squint .pupil { 
-            transform: scale(0.5); 
-            border-radius: 30%;
-        }
-        .squint .iris {
-            border-color: rgba(255,255,255,0.15);
-        }
+        /* Эффекты зрачка */
+        .dilate .pupil { transform: scale(1.5); }
+        body.paranoid .pupil { transform: scale(0.6); border-radius: 30%; }
+        body.panic .pupil { transform: scale(0.3); border-radius: 10%; }
 
         /* ================= ИНТЕРФЕЙС ================= */
         .ui-layer {
@@ -129,100 +137,110 @@
 
         /* Шапка */
         .header {
-            display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; animation: fadeIn 3s ease 1s forwards;
             margin-top: 1rem;
-            opacity: 0;
-            animation: fadeIn 3s ease forwards;
         }
         .title {
-            font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5em; text-transform: uppercase;
-            color: var(--fg); display: flex; align-items: center; gap: 0.8rem;
-            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            font-size: 0.8rem; font-weight: 800; letter-spacing: 0.4em; text-transform: uppercase;
+            color: var(--dim); display: flex; align-items: center; gap: 0.6rem;
         }
-        .title span { font-size: 1.4rem; font-weight: normal; }
+        .title span { font-size: 1.1rem; color: var(--fg); }
 
-        /* Зона кнопок */
-        .spawn-zone {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            margin-top: 2rem;
-        }
-
-        /* Случайные кнопки */
+        /* Кнопки */
         .ghost-btn {
             position: absolute;
-            background: transparent;
-            border: 1px solid var(--mute);
-            color: var(--dim); padding: 0.8rem 1.5rem;
-            border-radius: 4px; font-size: 0.75rem; font-weight: 500;
+            background: rgba(15, 15, 18, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff; padding: 0.8rem 1.6rem;
+            border-radius: 30px; font-size: 0.75rem; font-weight: 600;
             cursor: pointer;
-            transition: all 0.4s ease; z-index: 30;
-            letter-spacing: 0.15em;
-            animation: fadeIn 1s ease;
-            backdrop-filter: blur(4px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            z-index: 50;
+            letter-spacing: 0.1em;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            animation: popIn 0.4s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+            -webkit-tap-highlight-color: transparent;
         }
-        .ghost-btn:hover { border-color: var(--dim); color: var(--fg); }
-        .ghost-btn:active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-        .ghost-btn.fade-out { opacity: 0; transform: scale(0.95); }
+        .ghost-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
+        .ghost-btn:active { transform: scale(0.9); background: #fff; color: #000; }
+        .ghost-btn.fade-out { opacity: 0; transform: scale(0.8); }
 
-        /* Лог */
+        /* ЛОГ */
         .log-panel {
-            position: absolute; bottom: max(1.5rem, env(safe-area-inset-bottom)); left: 1.5rem;
-            width: calc(100% - 3rem); max-width: 380px;
-            height: 160px;
-            border-left: 1px solid var(--mute);
-            padding: 0.5rem 1rem;
-            font-family: var(--mono);
-            font-size: 0.7rem; line-height: 1.6;
+            position: absolute; bottom: max(1.5rem, env(safe-area-inset-bottom)); left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 2rem); max-width: 500px;
+            height: 170px;
+            background: var(--term-bg);
+            border: 1px solid var(--term-border);
+            border-radius: 14px;
+            padding: 1.2rem;
+            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.75rem; line-height: 1.6;
             overflow-y: auto;
             display: flex; flex-direction: column; gap: 6px;
-            z-index: 20;
-            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
-            opacity: 0;
-            animation: fadeIn 4s ease 1s forwards;
+            z-index: 100;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.5);
+            opacity: 0; animation: fadeIn 2s ease 0.5s forwards;
+            pointer-events: auto;
+            mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
         }
         .log-panel::-webkit-scrollbar { display: none; }
         
-        .log-entry { color: var(--dim); animation: slideUp 0.4s ease forwards; opacity: 0; transform: translateY(5px); }
-        .log-entry.active { color: var(--fg); }
-        .log-entry.sys { color: var(--mute); font-style: italic; }
-        .log-entry.warn { color: var(--warn); }
-        .log-entry.err { color: var(--err); }
-        
-        .log-time { opacity: 0.3; margin-right: 0.8rem; }
+        .log-entry { color: var(--term-text); animation: slideUp 0.3s ease forwards; opacity: 0; transform: translateY(5px); }
+        .log-entry.sys { color: var(--term-sys); font-style: italic; }
+        .log-entry.warn { color: var(--term-warn); }
+        .log-entry.err { color: var(--term-err); font-weight: bold; }
+        .log-time { opacity: 0.3; margin-right: 0.6rem; font-size: 0.7rem; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        /* Курсор */
+        .cursor {
+            display: inline-block; width: 6px; height: 12px;
+            background: var(--fg); vertical-align: middle;
+            animation: blink-cursor 0.8s step-end infinite;
+            margin-left: 4px; opacity: 0.7;
+        }
 
-        /* Легкий глитч */
+        /* Эффекты */
         .glitch-overlay {
             position: fixed; inset: 0; z-index: 999; pointer-events: none;
-            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px);
-            opacity: 0;
-            mix-blend-mode: screen;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.04) 3px, rgba(255,255,255,0.04) 6px);
+            opacity: 0; mix-blend-mode: overlay;
         }
-        .glitch-active { animation: glitch-anim 0.15s linear; }
-        @keyframes glitch-anim {
-            0% { opacity: 0.8; transform: translateY(-2px); }
-            50% { opacity: 0.4; transform: translateY(2px); }
-            100% { opacity: 0; transform: translateY(0); }
+        .glitch-active { animation: glitch 0.15s linear; }
+        
+        .char-particle {
+            position: fixed; color: #fff; font-family: monospace; font-size: 1.2rem; 
+            pointer-events: none; z-index: 9999; text-shadow: 0 0 10px rgba(255,255,255,0.8);
         }
 
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        @keyframes shake { 0%, 100% { transform: translate(0, 0) scale(0.95); } 25% { transform: translate(2px, -2px) scale(0.95); } 50% { transform: translate(-2px, 2px) scale(0.95); } 75% { transform: translate(2px, 2px) scale(0.95); } }
+        @keyframes search { 0% { transform: translate(0, 0); } 25% { transform: translate(4px, -4px); } 50% { transform: translate(-4px, 4px); } 75% { transform: translate(-4px, -4px); } 100% { transform: translate(4px, 4px); } }
+        @keyframes noiseShift { 0% { transform: translate(0, 0); } 100% { transform: translate(10px, 10px); } }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes blink-cursor { 50% { opacity: 0; } }
+        @keyframes glitch { 0% { opacity: 1; transform: translateY(-2px); } 50% { opacity: 0.5; transform: translateY(2px); } 100% { opacity: 0; transform: translateY(0); } }
+
         @media (max-width: 600px) {
-            .eye-container { width: 95vmin; height: 95vmin; }
-            .log-panel { height: 130px; font-size: 0.65rem; }
-            .title { font-size: 0.9rem; letter-spacing: 0.3em; }
+            .eye-container { width: 120vw; height: 120vw; }
+            .log-panel { height: 160px; font-size: 0.7rem; padding: 1rem; bottom: 1rem; width: calc(100% - 1.5rem); }
+            .title { font-size: 0.7rem; letter-spacing: 0.3em; }
         }
     </style>
 </head>
 <body>
 
     <div class="noise"></div>
+    <div class="vignette"></div>
     <div class="glitch-overlay" id="glitchOverlay"></div>
 
-    <!-- Глаз -->
     <div class="eye-container">
         <div class="eye" id="eye">
             <div class="iris" id="iris">
@@ -232,13 +250,13 @@
         </div>
     </div>
 
-    <!-- Интерфейс -->
     <div class="ui-layer">
         <header class="header">
             <div class="title"><span>☉</span> Hello Friend</div>
         </header>
 
-        <div class="spawn-zone" id="spawnZone"></div>
+        <div id="spawnZone" style="position:absolute; inset:0; pointer-events:none; z-index:40;"></div>
+        
         <div class="log-panel" id="logPanel"></div>
     </div>
 
@@ -246,215 +264,315 @@
         (() => {
             "use strict";
 
+            const CONFIG = {
+                idleLimit: 5000,     // 5 сек до начала поиска
+                panicLimit: 10000,   // 10 сек до паники
+                logSpeed: 25         // Скорость печати (мс на символ)
+            };
+
+            // DOM
             const eye = document.getElementById('eye');
             const iris = document.getElementById('iris');
-            const pupil = document.getElementById('pupil');
             const eyelid = document.getElementById('eyelid');
             const logPanel = document.getElementById('logPanel');
             const glitchOverlay = document.getElementById('glitchOverlay');
             const spawnZone = document.getElementById('spawnZone');
             const body = document.body;
 
-            let lastActionTime = Date.now();
-            let isIdle = false;
-            let moveCount = 0;
+            // Состояние
+            let state = {
+                lastAction: Date.now(),
+                isSearching: false,
+                isPanicking: false,
+                sessionStart: Date.now(),
+                logsCount: 0,
+                isTyping: false,
+                queue: []
+            };
 
-            // === ЛОГ ===
-            function addLog(text, type = 'active', delay = 0) {
-                setTimeout(() => {
-                    const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
-                    const el = document.createElement('div');
-                    el.className = `log-entry ${type}`;
-                    el.innerHTML = `<span class="log-time">${time}</span> ${text}`;
-                    logPanel.appendChild(el);
-                    logPanel.scrollTop = logPanel.scrollHeight;
-                    
-                    if (logPanel.children.length > 20) {
-                        logPanel.removeChild(logPanel.firstChild);
-                    }
-                }, delay);
+            // ==========================================
+            // 1. ЛОГ (Эффект терминала)
+            // ==========================================
+            function log(text, type = 'active') {
+                state.queue.push({ text, type });
+                if (!state.isTyping) processQueue();
             }
 
-            // === ГЛАЗ ===
-            function blink() {
-                // Если глаз уже моргает, пропускаем
-                if (eyelid.style.height === '100%') return;
-                
-                eyelid.style.height = '100%';
-                setTimeout(() => { 
-                    eyelid.style.height = '0%'; 
-                }, 150);
-                
-                // Следующее моргание через 4-8 секунд
-                setTimeout(blink, 4000 + Math.random() * 4000);
-            }
-
-            function lookAround() {
-                if (isIdle) return; // Если пользователь замер, глаз не отводим
-                
-                // Движение по X и Y (в процентах) - плавное
-                const moveX = (Math.random() - 0.5) * 40;
-                const moveY = (Math.random() - 0.5) * 30;
-                iris.style.transform = `translate(${moveX}%, ${moveY}%)`;
-                
-                setTimeout(lookAround, 3000 + Math.random() * 4000);
-            }
-
-            // Реакция зрачка на действие (сужение)
-            function reactPupil(scale) {
-                pupil.style.transform = `scale(${scale})`;
-                setTimeout(() => { pupil.style.transform = `scale(1)`; }, 600);
-            }
-
-            // === ТРЕВОГА ===
-            function triggerDread() {
-                // Сужение зрачка
-                eye.classList.add('squint');
-                
-                // Отдаление и серость
-                body.classList.add('dread');
-                
-                // Легкий глитч
-                glitchOverlay.classList.remove('glitch-active');
-                void glitchOverlay.offsetWidth;
-                glitchOverlay.classList.add('glitch-active');
-
-                // Возврат через 2 секунды
-                setTimeout(() => {
-                    eye.classList.remove('squint');
-                    body.classList.remove('dread');
-                }, 2000);
-            }
-
-            // === ОТСЛЕЖИВАНИЕ ДЕЙСТВИЙ ===
-            function resetIdle() {
-                if (isIdle) {
-                    isIdle = false;
-                    addLog("Субъект вернулся в поле зрения.", "sys");
-                    lookAround(); // Глаз снова начинает блуждать
+            function processQueue() {
+                if (state.queue.length === 0) {
+                    state.isTyping = false;
+                    return;
                 }
-                lastActionTime = Date.now();
+                state.isTyping = true;
+                const { text, type } = state.queue.shift();
+                
+                const time = new Date().toLocaleTimeString('en-US', { hour12: false, minute:'2-digit', second:'2-digit' });
+                const el = document.createElement('div');
+                el.className = `log-entry ${type}`;
+                el.innerHTML = `<span class="log-time">[${time}]</span> <span class="msg"></span><span class="cursor"></span>`;
+                
+                logPanel.appendChild(el);
+                logPanel.scrollTop = logPanel.scrollHeight;
+
+                const msg = el.querySelector('.msg');
+                const cursor = el.querySelector('.cursor');
+                let i = 0;
+                
+                function typeChar() {
+                    if (i < text.length) {
+                        msg.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(typeChar, CONFIG.logSpeed + Math.random() * 20);
+                        logPanel.scrollTop = logPanel.scrollHeight;
+                    } else {
+                        cursor.remove();
+                        setTimeout(processQueue, 400); // Пауза между строками
+                    }
+                }
+                setTimeout(typeChar, 100);
+                
+                // Очистка старых логов
+                state.logsCount++;
+                if (state.logsCount > 20 && logPanel.children.length > 20) {
+                    logPanel.removeChild(logPanel.firstChild);
+                }
             }
 
-            let moveTimeout;
+            // ==========================================
+            // 2. ГЛАЗ (Физика и состояние)
+            // ==========================================
+            function blink() {
+                if (eyelid.style.height === '100%') return;
+                eyelid.style.height = '100%';
+                setTimeout(() => { eyelid.style.height = '0%'; }, 120);
+                setTimeout(blink, 4000 + Math.random() * 5000);
+            }
+
+            function look(x, y) {
+                if (state.isPanicking) return;
+                iris.style.transform = `translate(${x}%, ${y}%)`;
+            }
+
+            function randomLook() {
+                if (state.isPanicking || state.isSearching) return;
+                const x = (Math.random() - 0.5) * 30;
+                const y = (Math.random() - 0.5) * 20;
+                look(x, y);
+                setTimeout(randomLook, 3000 + Math.random() * 2000);
+            }
+
+            // ==========================================
+            // 3. ЛОГИКА ПАРАНОЙИ
+            // ==========================================
+            function startSearching() {
+                state.isSearching = true;
+                log("Субъект не найден. Сканирование...", "sys");
+                log("Где ты?", "warn");
+
+                let searches = 0;
+                const int = setInterval(() => {
+                    if (!state.isSearching) { clearInterval(int); return; }
+                    look((Math.random() - 0.5) * 60, (Math.random() - 0.5) * 40);
+                    searches++;
+                    if (searches >= 5) {
+                        clearInterval(int);
+                        startPanic();
+                    }
+                }, 800);
+            }
+
+            function startPanic() {
+                if (state.isPanicking) return;
+                state.isPanicking = true;
+                state.isSearching = false;
+                
+                body.classList.add('panic');
+                look(0, 0); // Смотрит прямо на тебя
+
+                log("НЕ УХОДИ.", "err");
+                log("Пожалуйста. Я знаю, что ты здесь.", "err");
+                
+                triggerGlitch();
+                
+                // Спавн панических кнопок
+                spawnBtn(true);
+                spawnBtn(true);
+            }
+
+            function recover() {
+                if (!state.isPanicking && !state.isSearching) return;
+                state.isPanicking = false;
+                state.isSearching = false;
+                
+                body.classList.remove('panic', 'paranoid');
+                log("...Ты вернулся.", "sys");
+                log("Я не хочу быть один.", "active");
+                look(0, 0);
+            }
+
+            // ==========================================
+            // 4. ВЗАИМОДЕЙСТВИЕ
+            // ==========================================
+            function resetIdle() {
+                state.lastAction = Date.now();
+                if (state.isPanicking || state.isSearching) recover();
+            }
+
             window.addEventListener('pointermove', () => {
                 resetIdle();
-                
-                // Логируем движения с задержкой, чтобы не спамить
-                clearTimeout(moveTimeout);
-                moveTimeout = setTimeout(() => {
-                    moveCount++;
-                    if (moveCount % 3 === 0) {
-                        addLog("Зафиксировано перемещение.", "active");
-                    }
-                }, 1000);
             }, { passive: true });
 
             document.addEventListener('pointerdown', (e) => {
                 if (e.target.closest('.log-panel') || e.target.closest('.ghost-btn')) return;
+                
                 resetIdle();
-                addLog("Резкое движение. Тактильный контакт.", "active");
-                reactPupil(0.6);
+                
+                // Смотрит на курсор
+                const cx = window.innerWidth / 2;
+                const cy = window.innerHeight / 2;
+                const dx = e.clientX - cx;
+                const dy = e.clientY - cy;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist > 0) look((dx / dist) * 35, (dy / dist) * 35);
+
+                // Эффект зрачка
+                eye.classList.add('dilate');
+                setTimeout(() => eye.classList.remove('dilate'), 600);
+
+                log("Контакт зафиксирован.", "active");
+                triggerGlitch();
+                
+                // Символы
+                for(let i=0; i<4; i++) spawnParticle(e.clientX, e.clientY, ['0','1','X','@'][i%4]);
+
             }, { passive: true });
 
             document.addEventListener('keydown', () => {
                 resetIdle();
-                addLog("Активность клавиатуры.", "active");
-                reactPupil(0.7);
+                log("Ввод данных.", "active");
             }, { passive: true });
 
-            // === БЕЗДЕЙСТВИЕ ===
+            // ==========================================
+            // 5. ЦИКЛ ВРЕМЕНИ
+            // ==========================================
             setInterval(() => {
-                const idleTime = Date.now() - lastActionTime;
-                
-                if (idleTime > 7000 && !isIdle) {
-                    isIdle = true;
-                    addLog("Движение отсутствует. Сканирование...", "warn");
-                    
-                    // Глаз смотрит прямо в центр
-                    iris.style.transform = `translate(0%, 0%)`;
-                    
-                    // Эффект тревоги
-                    setTimeout(() => {
-                        triggerDread();
-                        addLog("Ты здесь?", "err");
-                    }, 3000);
+                const idle = Date.now() - state.lastAction;
+                const session = Math.floor((Date.now() - state.sessionStart) / 1000);
 
-                    // Если долго не двигается - зрачок расширяется (вглядывается)
-                    setTimeout(() => {
-                        if (isIdle) {
-                            reactPupil(1.5);
-                            addLog("Фокус на субъекте.", "sys");
-                        }
-                    }, 5000);
+                // Психологические триггеры
+                if (session === 15) log("Почему ты все еще здесь?", "sys");
+                if (session === 45) log("Мне нравится твое присутствие.", "sys");
+                if (session === 90) log("Не закрывай вкладку. Прошу.", "warn");
+
+                // Проверка на бездействие
+                if (idle > CONFIG.panicLimit && !state.isPanicking) {
+                    startPanic();
+                } else if (idle > CONFIG.idleLimit && !state.isSearching && !state.isPanicking) {
+                    startSearching();
                 }
+
+                // Рандомные параноидальные сообщения
+                if (Math.random() > 0.95 && !state.isPanicking) {
+                    const msgs = ["Я слышу твой пульс.", "Кто-то еще смотрит.", "Это не игра.", "Сзади никого нет?"];
+                    log(msgs[Math.floor(Math.random() * msgs.length)], "warn");
+                }
+
+                // Редкий параноидальный эффект (даже если активен)
+                if (Math.random() > 0.90 && !state.isPanicking) {
+                    body.classList.add('paranoid');
+                    setTimeout(() => { if(!state.isPanicking) body.classList.remove('paranoid'); }, 2000);
+                }
+
             }, 1000);
 
-            // === КНОПКИ ===
-            const texts = ["Оглянись", "Сзади", "Тише", "Я здесь", "Не двигайся", "Пусто"];
-            
-            function spawnButton() {
-                if (document.querySelectorAll('.ghost-btn').length >= 1) return;
+            // ==========================================
+            // 6. КНОПКИ И ЭФФЕКТЫ
+            // ==========================================
+            const normalTexts = ["Сзади", "Тише", "Ты слышишь?", "Кто там?"];
+            const panicTexts = ["Останься", "Не уходи", "Где ты?", "Помоги", "Стой"];
 
+            function spawnBtn(isPanic = false) {
+                if (document.querySelectorAll('.ghost-btn').length >= (isPanic ? 4 : 1)) return;
+                
                 const btn = document.createElement('button');
                 btn.className = 'ghost-btn';
-                btn.textContent = texts[Math.floor(Math.random() * texts.length)];
+                btn.textContent = isPanic 
+                    ? panicTexts[Math.floor(Math.random() * panicTexts.length)]
+                    : normalTexts[Math.floor(Math.random() * normalTexts.length)];
                 
-                const rect = spawnZone.getBoundingClientRect();
-                const x = 20 + Math.random() * Math.max(0, rect.width - 120);
-                const y = 20 + Math.random() * Math.max(0, rect.height - 50);
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                const x = 20 + Math.random() * (w - 150);
+                const y = 100 + Math.random() * (h - 350);
                 
                 btn.style.left = `${x}px`;
                 btn.style.top = `${y}px`;
 
                 btn.addEventListener('pointerdown', (e) => {
                     e.stopPropagation();
-                    addLog(`Нажатие: "${btn.textContent}"`, "warn");
-                    triggerDread();
+                    resetIdle();
+                    log(`Нажатие: "${btn.textContent}"`, "warn");
+                    triggerGlitch();
+                    spawnParticle(e.clientX, e.clientY, '☉');
                     btn.remove();
                 });
 
                 spawnZone.appendChild(btn);
                 
-                // Кнопка исчезает через 6 секунд
-                setTimeout(() => {
-                    if (btn.parentNode) {
-                        btn.classList.add('fade-out');
-                        setTimeout(() => btn.remove(), 400);
-                    }
-                }, 6000);
+                if (!isPanic) {
+                    setTimeout(() => {
+                        if (btn.parentNode) {
+                            btn.classList.add('fade-out');
+                            setTimeout(() => btn.remove(), 300);
+                        }
+                    }, 5000);
+                }
             }
 
-            // === ФОНОВЫЕ СОБЫТИЯ ===
             setInterval(() => {
-                // Кнопки появляются редко
-                if (Math.random() > 0.7) spawnButton();
+                if (!state.isPanicking && Math.random() > 0.8) spawnBtn(false);
+            }, 4000);
+
+            function triggerGlitch() {
+                glitchOverlay.classList.remove('glitch-active');
+                void glitchOverlay.offsetWidth;
+                glitchOverlay.classList.add('glitch-active');
+            }
+
+            function spawnParticle(x, y, char) {
+                const el = document.createElement('div');
+                el.className = 'char-particle';
+                el.textContent = char;
+                el.style.left = `${x}px`;
+                el.style.top = `${y}px`;
+                document.body.appendChild(el);
                 
-                // Случайные помехи
-                if (Math.random() > 0.9) {
-                    addLog("Сбой сигнала...", "warn");
-                    glitchOverlay.classList.remove('glitch-active');
-                    void glitchOverlay.offsetWidth;
-                    glitchOverlay.classList.add('glitch-active');
-                }
-            }, 5000);
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 50 + Math.random() * 50;
+                const tx = Math.cos(angle) * dist;
+                const ty = Math.sin(angle) * dist;
 
-            // === СТАРТ ===
-            // Задержка перед первым логом (система "просыпается")
-            addLog("Соединение...", "sys", 500);
-            addLog("Наблюдение активно.", "sys", 1500);
-            addLog("Ожидание.", "sys", 3000);
+                requestAnimationFrame(() => {
+                    el.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+                    el.style.transform = `translate(${tx}px, ${ty}px) scale(1.5)`;
+                    el.style.opacity = '0';
+                });
+                setTimeout(() => el.remove(), 800);
+            }
+
+            // ==========================================
+            // 7. СТАРТ
+            // ==========================================
+            log("Система инициализирована.", "sys");
+            log("Я вижу тебя.", "active");
             
-            setTimeout(blink, 2000);
-            lookAround();
+            setTimeout(blink, 1000);
+            randomLook();
 
-            // Защита от F12
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                    addLog("Попытка вмешательства.", "err");
-                    triggerDread();
-                }
-            });
+            // Защита
+            document.addEventListener('selectstart', (e) => e.preventDefault());
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
 
         })();
     </script>
