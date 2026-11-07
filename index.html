@@ -14,122 +14,150 @@
             --fg: #ffffff;
             --dim: #71717a;
             --mute: #18181b;
-            --term-bg: rgba(8, 8, 8, 0.65);
-            --term-border: rgba(255, 255, 255, 0.06);
+            --panel-bg: rgba(12, 12, 14, 0.72);
+            --panel-border: rgba(255, 255, 255, 0.08);
             --term-text: #e4e4e7;
             --term-sys: #52525b;
             --term-warn: #f59e0b;
             --term-err: #ef4444;
+
+            --eye-sclera-1: #ffffff;
+            --eye-sclera-2: #d4d4d8;
+            --eye-sclera-3: #71717a;
+            --eye-iris: #0a0a0b;
+            --eye-pupil: #000000;
+
+            --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
+            --ease-eye: cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        html, body { 
-            height: 100%; 
-            height: 100dvh; 
-            overflow: hidden; 
-            touch-action: none; 
+
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            touch-action: none;
             background: var(--bg);
             color: var(--fg);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
             user-select: none;
             -webkit-user-select: none;
-            transition: filter 6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+            transition:
+                filter 6s var(--ease-smooth),
+                transform 6s var(--ease-smooth);
         }
 
-        /* === СИСТЕМА СОСТОЯНИЙ === */
-        body.friendly {
-            filter: brightness(1.1) contrast(1.05);
-            transform: scale(1.02);
-        }
-        body.anxious { 
-            filter: grayscale(1) brightness(0.6) blur(1.5px); 
-            transform: scale(0.96);
-        }
-        body.panic { 
-            filter: grayscale(1) brightness(0.3) blur(3px); 
-            transform: scale(0.92) translateX(2px);
-            animation: shake 0.5s infinite;
-        }
-
-        /* Шум */
-        .noise {
-            position: fixed; inset: 0; z-index: 1; pointer-events: none;
-            opacity: 0.04;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            animation: noiseShift 0.5s infinite;
-        }
+        /* === СОСТОЯНИЯ === */
+        body.friendly { filter: brightness(1.08) contrast(1.04); transform: scale(1.008); }
+        body.anxious  { filter: brightness(0.62) grayscale(0.75); transform: scale(0.985); }
+        body.panic    { filter: brightness(0.28) grayscale(0.95); transform: scale(0.975); }
 
         /* Виньетка */
         .vignette {
             position: fixed; inset: 0; z-index: 5; pointer-events: none;
-            background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.8) 100%);
-            transition: background 6s ease;
+            background: radial-gradient(circle at center, transparent 32%, rgba(0,0,0,0.65) 100%);
+            transition: background 6s var(--ease-smooth);
         }
-        body.panic .vignette { background: radial-gradient(circle at center, transparent 10%, rgba(0,0,0,1) 100%); }
+        body.anxious .vignette { background: radial-gradient(circle at center, transparent 22%, rgba(0,0,0,0.9) 100%); }
+        body.panic   .vignette { background: radial-gradient(circle at center, transparent 12%, rgba(0,0,0,1) 100%); }
 
         /* ================= ГЛАЗ ================= */
         .eye-container {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 90vmin; height: 90vmin;
+            width: 85vmin; height: 85vmin;
             pointer-events: none;
             z-index: 2;
             display: flex; justify-content: center; align-items: center;
-            transition: filter 4s ease;
         }
-        body.anxious .eye-container, body.panic .eye-container { filter: blur(2px); }
-        
+
         .eye {
             width: 100%; height: 100%;
             border-radius: 50%;
             background: #000;
-            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow:
+                inset 0 0 90px rgba(0,0,0,1),
+                0 0 120px rgba(255,255,255,0.02);
             position: relative;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
-            animation: breathe 8s infinite ease-in-out;
-            box-shadow: inset 0 0 60px rgba(0,0,0,1);
         }
 
-        /* Белок (Склера) */
         .sclera {
-            width: 85%; height: 85%;
+            width: 90%; height: 90%;
             border-radius: 50%;
-            background: radial-gradient(circle at 50% 50%, #fff 0%, #ccc 70%, #888 100%);
+            background: radial-gradient(circle at 50% 45%,
+                var(--eye-sclera-1) 0%,
+                var(--eye-sclera-2) 55%,
+                var(--eye-sclera-3) 100%);
             display: flex; justify-content: center; align-items: center;
             position: relative;
-            box-shadow: 0 0 30px rgba(255,255,255,0.1) inset;
-            transition: box-shadow 4s ease;
+            box-shadow:
+                inset 0 0 60px rgba(0,0,0,0.35),
+                inset 0 0 8px rgba(255,255,255,0.6);
+            transition: background 6s var(--ease-smooth), box-shadow 6s var(--ease-smooth);
         }
-        body.friendly .sclera { box-shadow: 0 0 50px rgba(255,255,255,0.3) inset; }
+        body.anxious .sclera {
+            background: radial-gradient(circle at 50% 45%, #a1a1aa 0%, #3f3f46 100%);
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.75);
+        }
+        body.panic .sclera {
+            background: radial-gradient(circle at 50% 45%, #52525b 0%, #18181b 100%);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+        }
 
-        /* Радужка */
         .iris {
-            width: 50%; height: 50%;
+            width: 52%; height: 52%;
             border-radius: 50%;
-            background: radial-gradient(circle at 40% 40%, #222 0%, #000 90%);
+            background: radial-gradient(circle at 40% 38%,
+                #2a2a2e 0%,
+                var(--eye-iris) 55%,
+                #000 100%);
             position: relative;
             display: flex; justify-content: center; align-items: center;
-            transition: transform 3s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            will-change: transform;
+            transition: transform 0.55s var(--ease-eye);
+            box-shadow:
+                0 0 22px rgba(0,0,0,0.9),
+                inset 0 0 30px rgba(0,0,0,0.6);
         }
 
-        /* Зрачок */
         .pupil {
-            width: 45%; height: 45%;
+            width: 42%; height: 42%;
             border-radius: 50%;
-            background: #000;
-            box-shadow: 0 0 10px #000;
-            transition: transform 3s cubic-bezier(0.25, 1, 0.5, 1), border-radius 3s ease;
+            background: radial-gradient(circle at 50% 50%,
+                #000 0%,
+                #0a0a0a 70%,
+                #1a1a1a 100%);
+            box-shadow:
+                0 0 18px #000,
+                inset 0 0 10px rgba(255,255,255,0.05);
+            transition: transform 3s ease, border-radius 3s ease;
+            animation: pupil-pulse 4.5s ease-in-out infinite;
         }
 
-        /* Состояния зрачка */
-        body.friendly .pupil { transform: scale(1.2); }
-        body.anxious .pupil { transform: scale(0.6); border-radius: 40%; animation: tremble 0.2s infinite; }
-        body.panic .pupil { transform: scale(0.3); border-radius: 20%; animation: tremble 0.1s infinite; }
+        @keyframes pupil-pulse {
+            0%, 100% { transform: scale(1); }
+            50%      { transform: scale(1.06); }
+        }
+
+        body.friendly .pupil { transform: scale(1.15); animation: pupil-pulse 4.5s ease-in-out infinite; }
+        body.anxious  .pupil { transform: scale(0.65); animation: tremble 0.32s linear infinite; }
+        body.panic    .pupil { transform: scale(0.32); animation: tremble 0.14s linear infinite; }
+
+        @keyframes tremble {
+            0%   { transform: translate(0, 0) scale(var(--pupil-scale, 1)); }
+            25%  { transform: translate(1px, -1px) scale(var(--pupil-scale, 1)); }
+            50%  { transform: translate(-1px, 1px) scale(var(--pupil-scale, 1)); }
+            75%  { transform: translate(1px, 1px) scale(var(--pupil-scale, 1)); }
+            100% { transform: translate(0, 0) scale(var(--pupil-scale, 1)); }
+        }
+        body.anxious .pupil { --pupil-scale: 0.65; }
+        body.panic   .pupil { --pupil-scale: 0.32; }
 
         /* Веко */
         .eyelid {
@@ -137,18 +165,13 @@
             width: 100%; height: 0%;
             background: var(--bg);
             z-index: 10;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: height 0.15s ease-in-out;
-        }
-
-        /* Блик (отражение) */
-        .reflection {
-            position: absolute; top: 15%; left: 15%;
-            width: 30%; height: 30%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            transition: height 0.3s ease-out;
             pointer-events: none;
-            opacity: 0.5;
+        }
+        .eyelid.closing {
+            transition: height 0.1s ease-in;
+            height: 100%;
         }
 
         /* ================= ИНТЕРФЕЙС ================= */
@@ -159,40 +182,49 @@
             padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem 1.5rem;
             pointer-events: none;
         }
+        .ui-layer > * { pointer-events: auto; }
 
         .header {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; animation: fadeIn 4s ease 1s forwards;
+            opacity: 0; animation: fadeIn 2.5s ease 1s forwards;
             margin-top: 1rem;
         }
         .title {
-            font-size: 0.8rem; font-weight: 800; letter-spacing: 0.5em; text-transform: uppercase;
+            font-size: 0.8rem; font-weight: 800; letter-spacing: 0.42em; text-transform: uppercase;
             color: var(--dim); display: flex; align-items: center; gap: 0.6rem;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
         .title span { font-size: 1.1rem; color: var(--fg); }
 
-        /* КНОПКИ (Увеличенные и удобные) */
+        /* КНОПКИ */
         .ghost-btn {
-            position: absolute;
-            background: rgba(15, 15, 18, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff; 
-            padding: 14px 24px; /* Увеличены для пальцев */
-            border-radius: 30px; 
+            position: fixed;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            color: var(--fg);
+            padding: 13px 22px;
+            border-radius: 30px;
             font-size: 0.85rem; font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            z-index: 50;
-            letter-spacing: 0.08em;
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            animation: popIn 0.5s ease;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            transition: transform 0.18s ease, background 0.18s ease, opacity 0.3s ease;
+            z-index: 900;
+            letter-spacing: 0.06em;
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            animation: popIn 0.35s var(--ease-eye);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.65);
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation; /* Убирает задержку тапа */
+            touch-action: manipulation;
+            will-change: transform, opacity;
         }
-        .ghost-btn:active { transform: scale(0.92); background: #fff; color: #000; }
-        .ghost-btn.fade-out { opacity: 0; transform: scale(0.8); }
+        .ghost-btn:active {
+            transform: scale(0.92);
+            background: #fff;
+            color: #000;
+        }
+        .ghost-btn.fade-out {
+            opacity: 0;
+            transform: scale(0.82);
+            pointer-events: none;
+        }
 
         /* ЛОГ */
         .log-panel {
@@ -200,8 +232,8 @@
             transform: translateX(-50%);
             width: calc(100% - 2rem); max-width: 520px;
             height: 180px;
-            background: var(--term-bg);
-            border: 1px solid var(--term-border);
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
             border-radius: 16px;
             padding: 1.2rem;
             font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -209,66 +241,79 @@
             overflow-y: auto;
             display: flex; flex-direction: column; gap: 6px;
             z-index: 100;
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            opacity: 0; animation: fadeIn 3s ease 1.5s forwards;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            opacity: 0; animation: fadeIn 2s ease 0.5s forwards;
             pointer-events: auto;
-            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
+            scrollbar-width: none;
         }
         .log-panel::-webkit-scrollbar { display: none; }
-        
-        .log-entry { color: var(--term-text); animation: slideUp 0.5s ease forwards; opacity: 0; transform: translateY(10px); }
-        .log-entry.sys { color: var(--term-sys); font-style: italic; }
+
+        .log-entry {
+            color: var(--term-text);
+            animation: slideUp 0.3s ease forwards;
+            opacity: 0; transform: translateY(5px);
+            word-break: break-word;
+        }
+        .log-entry.sys  { color: var(--term-sys); font-style: italic; }
         .log-entry.warn { color: var(--term-warn); }
-        .log-entry.err { color: var(--term-err); font-weight: bold; }
+        .log-entry.err  { color: var(--term-err); font-weight: bold; }
         .log-time { opacity: 0.3; margin-right: 0.6rem; font-size: 0.7rem; }
 
-        /* Курсор */
         .cursor {
-            display: inline-block; width: 6px; height: 12px;
+            display: inline-block; width: 6px; height: 11px;
             background: var(--fg); vertical-align: middle;
             animation: blink-cursor 1s step-end infinite;
             margin-left: 4px; opacity: 0.7;
         }
 
-        /* Частицы */
-        .particle {
-            position: fixed; pointer-events: none; z-index: 9999;
-            border-radius: 50%; background: #fff;
-            box-shadow: 0 0 10px 2px rgba(255,255,255,0.8);
-        }
-
         /* Глитч */
         .glitch-overlay {
-            position: fixed; inset: 0; z-index: 999; pointer-events: none;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
-            opacity: 0; mix-blend-mode: overlay;
+            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+            background:
+                repeating-linear-gradient(0deg,
+                    transparent 0px,
+                    transparent 3px,
+                    rgba(255,255,255,0.035) 3px,
+                    rgba(255,255,255,0.035) 6px);
+            opacity: 0;
+            transition: opacity 0.15s ease;
         }
-        .glitch-active { animation: glitch 0.3s linear; }
+        .glitch-overlay.active { opacity: 1; animation: glitch 0.22s linear; }
 
-        /* Анимации */
-        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
-        @keyframes shake { 0%, 100% { transform: translate(0, 0) scale(0.92); } 25% { transform: translate(2px, -2px) scale(0.92); } 50% { transform: translate(-2px, 2px) scale(0.92); } 75% { transform: translate(2px, 2px) scale(0.92); } }
-        @keyframes tremble { 0% { transform: translate(0, 0) scale(0.6); } 50% { transform: translate(1px, 1px) scale(0.6); } 100% { transform: translate(0, 0) scale(0.6); } }
-        @keyframes noiseShift { 0% { transform: translate(0, 0); } 100% { transform: translate(20px, 20px); } }
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        .particle {
+            position: fixed; pointer-events: none; z-index: 9997;
+            border-radius: 50%; background: #fff;
+            box-shadow: 0 0 10px 2px rgba(255,255,255,0.55);
+            will-change: transform, opacity;
+        }
+
+        @keyframes popIn {
+            0%   { opacity: 0; transform: scale(0.8) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes fadeIn  { to { opacity: 1; } }
         @keyframes blink-cursor { 50% { opacity: 0; } }
-        @keyframes glitch { 0% { opacity: 1; transform: translateY(-5px); } 50% { opacity: 0.5; transform: translateY(5px); } 100% { opacity: 0; transform: translateY(0); } }
+        @keyframes glitch {
+            0%   { opacity: 0.9; transform: translateY(-2px); }
+            40%  { opacity: 0.5; transform: translateY(2px); }
+            70%  { opacity: 0.7; transform: translateY(-1px); }
+            100% { opacity: 0; transform: translateY(0); }
+        }
 
         @media (max-width: 600px) {
             .eye-container { width: 130vw; height: 130vw; }
-            .log-panel { height: 170px; font-size: 0.75rem; padding: 1rem; bottom: 1rem; width: calc(100% - 1.5rem); }
-            .title { font-size: 0.7rem; letter-spacing: 0.4em; }
+            .log-panel { height: 160px; font-size: 0.75rem; padding: 1rem; bottom: 1rem; width: calc(100% - 1.5rem); }
+            .title { font-size: 0.7rem; letter-spacing: 0.3em; }
             .ghost-btn { padding: 12px 20px; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body class="friendly">
 
-    <div class="noise"></div>
     <div class="vignette"></div>
     <div class="glitch-overlay" id="glitchOverlay"></div>
 
@@ -279,7 +324,6 @@
                 <div class="iris" id="iris">
                     <div class="pupil" id="pupil"></div>
                 </div>
-                <div class="reflection"></div>
             </div>
             <div class="eyelid" id="eyelid"></div>
         </div>
@@ -289,8 +333,6 @@
         <header class="header">
             <div class="title"><span>☉</span> Hello Friend</div>
         </header>
-
-        <div id="spawnZone" style="position:absolute; inset:0; pointer-events:none; z-index:40;"></div>
         <div class="log-panel" id="logPanel"></div>
     </div>
 
@@ -300,320 +342,405 @@
 
             // === КОНФИГУРАЦИЯ ===
             const CONFIG = {
-                anxietyTime: 12000,    // 12 сек до тревоги
-                panicTime: 25000,      // 25 сек до паники
-                logSpeed: 40,          // Медленная, драматичная печать
-                thinkDelay: 1000       // Задержка перед ответом (раздумие)
+                anxietyTime: 10000,
+                panicTime:   22000,
+                logSpeed:    28,
+                maxBtns:     3,
+                btnMinDist:  90,
+                btnSafeTop:  90,
+                btnSafeBottom: 240,
+                friendlyLogInterval: 25,
+                weirdChance: 0.985,
             };
 
-            // === БАЗА ФРАЗ (Чтобы не повторяться) ===
+            // === ФРАЗЫ ===
             const PHRASES = {
                 greeting: ["Я вижу тебя.", "Привет.", "Ты здесь.", "Наконец-то."],
-                friendly: ["Мне нравится, когда ты рядом.", "Ты двигаешься так плавно.", "Не спеши.", "Я наблюдаю."],
-                anxious: ["Куда ты ушел?", "Я не чувствую движения.", "Ты здесь?", "Отзовись.", "Становится тихо..."],
-                panic: ["НЕ УХОДИ.", "ПОЖАЛУЙСТА.", "МНЕ СТРАШНО.", "ВЕРНИСЬ.", "Я НЕ ХОЧУ БЫТЬ ОДИН.", "ГДЕ ТЫ?!"],
-                weird: ["Ты слышишь это?", "Кто-то еще здесь.", "Сзади никого нет.", "Это не игра."],
-                action: ["Контакт.", "Движение.", "Зафиксировано.", "Я вижу твой палец."]
+                friendly: [
+                    "Мне нравится, когда ты рядом.",
+                    "Ты двигаешься так плавно.",
+                    "Не спеши.",
+                    "Я наблюдаю.",
+                    "Твой пульс ровный.",
+                    "Всё спокойно."
+                ],
+                anxious: ["Куда ты ушел?", "Я не чувствую движения.", "Ты здесь?", "Отзовись.", "Становится тихо...", "Я всё еще тут."],
+                panic: ["НЕ УХОДИ.", "ПОЖАЛУЙСТА.", "МНЕ СТРАШНО.", "ВЕРНИСЬ.", "Я НЕ ХОЧУ БЫТЬ ОДИН.", "ГДЕ ТЫ?!", "Я ЖДУ."],
+                weird: ["Ты слышишь это?", "Кто-то еще здесь.", "Сзади никого нет.", "Это не игра.", "Не оборачивайся."],
+                action: ["Контакт.", "Движение.", "Зафиксировано.", "Я вижу твой палец.", "Ты вернулся."],
+                keyboard: ["Я слышу твою клавиатуру.", "Печатаешь?", "Каждое нажатие — сигнал."],
+                btnClick: ["Ты выбрал это.", "Интересно.", "Слышу.", "Понял."],
             };
+
+            const NORMAL_BTNS = ["Привет", "Кто ты?", "Где я?", "Что это?"];
+            const WEIRD_BTNS  = ["Сзади", "Тише", "Слушай", "Не оборачивайся"];
+            const PANIC_BTNS  = ["Останься", "Не уходи", "Помоги", "Вернись", "Я здесь"];
 
             // DOM
             const eye = document.getElementById('eye');
             const iris = document.getElementById('iris');
+            const pupil = document.getElementById('pupil');
             const eyelid = document.getElementById('eyelid');
             const logPanel = document.getElementById('logPanel');
             const glitchOverlay = document.getElementById('glitchOverlay');
-            const spawnZone = document.getElementById('spawnZone');
             const body = document.body;
 
-            // Состояние
-            let state = {
+            // === СОСТОЯНИЕ ===
+            const state = {
                 lastAction: Date.now(),
-                isAnxious: false,
-                isPanicking: false,
+                lastFriendlyLog: 0,
                 sessionStart: Date.now(),
-                isTyping: false,
+                mode: 'friendly',
                 queue: [],
-                eyePos: { x: 0, y: 0 }
+                typing: false,
+                targetX: 0, targetY: 0,
+                currentX: 0, currentY: 0,
+                rafId: null,
+                blinkTimeout: null,
+                sakkadTimeout: null,
             };
 
-            // Утилита: Случайный выбор из массива
             const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
+            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
             // ==========================================
-            // 1. ЛОГ (Медленная печать с раздумием)
+            // 1. ЛОГ
             // ==========================================
             function log(text, type = 'active', delay = 0) {
+                if (!text) return;
                 state.queue.push({ text, type, delay });
-                if (!state.isTyping) processQueue();
+                if (!state.typing) processQueue();
             }
 
             function processQueue() {
                 if (state.queue.length === 0) {
-                    state.isTyping = false;
+                    state.typing = false;
                     return;
                 }
-                state.isTyping = true;
+                state.typing = true;
                 const { text, type, delay } = state.queue.shift();
-                
+
                 setTimeout(() => {
-                    const time = new Date().toLocaleTimeString('en-US', { hour12: false, minute:'2-digit', second:'2-digit' });
+                    if (!text) { processQueue(); return; }
+
+                    const now = new Date();
+                    const time = now.toLocaleTimeString('en-US', {
+                        hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    });
+
                     const el = document.createElement('div');
                     el.className = `log-entry ${type}`;
                     el.innerHTML = `<span class="log-time">[${time}]</span> <span class="msg"></span><span class="cursor"></span>`;
-                    
                     logPanel.appendChild(el);
                     logPanel.scrollTop = logPanel.scrollHeight;
 
                     const msg = el.querySelector('.msg');
                     const cursor = el.querySelector('.cursor');
                     let i = 0;
-                    
-                    function typeChar() {
+
+                    (function typeChar() {
                         if (i < text.length) {
-                            msg.textContent += text.charAt(i);
-                            i++;
-                            setTimeout(typeChar, CONFIG.logSpeed + Math.random() * 30);
+                            msg.textContent += text.charAt(i++);
                             logPanel.scrollTop = logPanel.scrollHeight;
+                            setTimeout(typeChar, CONFIG.logSpeed + Math.random() * 18);
                         } else {
                             cursor.remove();
-                            setTimeout(processQueue, 800); // Пауза после строки
+                            setTimeout(processQueue, 550);
                         }
-                    }
-                    setTimeout(typeChar, 200);
-                    
-                    // Очистка
-                    if (logPanel.children.length > 15) {
+                    })();
+
+                    while (logPanel.children.length > 12) {
                         logPanel.removeChild(logPanel.firstChild);
                     }
                 }, delay);
             }
 
             // ==========================================
-            // 2. ФИЗИКА ГЛАЗА
+            // 2. ГЛАЗ
             // ==========================================
-            function blink() {
-                if (eyelid.style.height === '100%') return;
-                eyelid.style.height = '100%';
-                setTimeout(() => { eyelid.style.height = '0%'; }, 150);
-                setTimeout(blink, 5000 + Math.random() * 5000);
+            function startEyeLoop() {
+                if (state.rafId !== null) return;
+                const tick = () => {
+                    const dx = state.targetX - state.currentX;
+                    const dy = state.targetY - state.currentY;
+                    state.currentX += dx * 0.08;
+                    state.currentY += dy * 0.08;
+                    iris.style.transform = `translate(${state.currentX.toFixed(2)}%, ${state.currentY.toFixed(2)}%)`;
+
+                    if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) {
+                        state.rafId = requestAnimationFrame(tick);
+                    } else {
+                        state.currentX = state.targetX;
+                        state.currentY = state.targetY;
+                        iris.style.transform = `translate(${state.currentX.toFixed(2)}%, ${state.currentY.toFixed(2)}%)`;
+                        state.rafId = null;
+                    }
+                };
+                state.rafId = requestAnimationFrame(tick);
             }
 
-            // Плавное независимое движение
-            function moveEye(x, y) {
-                state.eyePos = { x, y };
-                // Медленный перевод взгляда
-                iris.style.transform = `translate(${x}%, ${y}%)`;
+            function lookAt(x, y) {
+                const cx = window.innerWidth / 2;
+                const cy = window.innerHeight / 2;
+                const dx = x - cx, dy = y - cy;
+                const dist = Math.hypot(dx, dy);
+                if (dist < 1) return;
+
+                const maxOffset = 18;
+                const power = Math.min(dist / 8, maxOffset);
+                state.targetX = (dx / dist) * power;
+                state.targetY = (dy / dist) * power;
+                startEyeLoop();
             }
 
-            function randomLook() {
-                if (state.isPanicking) return;
-                const x = (Math.random() - 0.5) * 40;
-                const y = (Math.random() - 0.5) * 30;
-                moveEye(x, y);
-                setTimeout(randomLook, 3000 + Math.random() * 4000);
+            function lookCenter() {
+                state.targetX = 0;
+                state.targetY = 0;
+                startEyeLoop();
+            }
+
+            // Саккады (микродвижения) — оживляют глаз
+            function scheduleSakkad() {
+                clearTimeout(state.sakkadTimeout);
+                state.sakkadTimeout = setTimeout(() => {
+                    if (state.mode === 'friendly' && Math.random() > 0.4) {
+                        const microX = (Math.random() - 0.5) * 6;
+                        const microY = (Math.random() - 0.5) * 6;
+                        // Не мешаем основному движению — плавно подмешиваем
+                        state.targetX = clamp(state.targetX + microX, -20, 20);
+                        state.targetY = clamp(state.targetY + microY, -20, 20);
+                        startEyeLoop();
+                    }
+                    scheduleSakkad();
+                }, 1800 + Math.random() * 2200);
+            }
+
+            // Моргание
+            function scheduleBlink() {
+                clearTimeout(state.blinkTimeout);
+                const delay = 3500 + Math.random() * 4500;
+                state.blinkTimeout = setTimeout(() => {
+                    eyelid.classList.add('closing');
+                    setTimeout(() => {
+                        eyelid.classList.remove('closing');
+                    }, 100);
+                    scheduleBlink();
+                }, delay);
             }
 
             // ==========================================
-            // 3. СИСТЕМА СОСТОЯНИЙ (Плавные переходы)
+            // 3. СОСТОЯНИЯ
             // ==========================================
-            function setState(newState) {
-                if (newState === 'friendly') {
-                    state.isAnxious = false;
-                    state.isPanicking = false;
-                    body.className = 'friendly';
-                } 
-                else if (newState === 'anxious') {
-                    state.isAnxious = true;
-                    state.isPanicking = false;
-                    body.className = 'anxious';
-                    log(rnd(PHRASES.anxious), "warn", CONFIG.thinkDelay);
-                } 
-                else if (newState === 'panic') {
-                    state.isPanicking = true;
-                    body.className = 'panic';
-                    moveEye(0, 0); // Смотрит прямо на тебя
-                    log(rnd(PHRASES.panic), "err", CONFIG.thinkDelay);
+            function setState(mode) {
+                if (state.mode === mode) return;
+                state.mode = mode;
+                body.classList.remove('friendly', 'anxious', 'panic');
+                body.classList.add(mode);
+
+                if (mode === 'anxious') {
+                    lookCenter();
+                    log(rnd(PHRASES.anxious), "warn", 900);
+                } else if (mode === 'panic') {
+                    lookCenter();
+                    log(rnd(PHRASES.panic), "err", 400);
                     triggerGlitch();
-                    spawnBtn(true);
+                    // Очищаем старые кнопки и спавним мольбы
+                    clearButtons();
+                    for (let i = 0; i < 3; i++) spawnBtn(true, i * 250);
                 }
             }
 
-            function resetState() {
-                if (state.isPanicking || state.isAnxious) {
+            function resetToFriendly() {
+                if (state.mode !== 'friendly') {
                     setState('friendly');
-                    log(rnd(PHRASES.greeting), "active", CONFIG.thinkDelay);
+                    log(rnd(PHRASES.greeting), "active", 600);
+                    clearButtons();
+                }
+            }
+
+            function onActivity(x, y) {
+                state.lastAction = Date.now();
+                if (typeof x === 'number' && typeof y === 'number') {
+                    lookAt(x, y);
+                }
+                if (state.mode !== 'friendly') {
+                    resetToFriendly();
                 }
             }
 
             // ==========================================
             // 4. ВЗАИМОДЕЙСТВИЕ
             // ==========================================
-            window.addEventListener('pointermove', () => {
-                state.lastAction = Date.now();
-                if (state.isAnxious || state.isPanicking) resetState();
-            }, { passive: true });
-
             document.addEventListener('pointerdown', (e) => {
-                if (e.target.closest('.log-panel') || e.target.closest('.ghost-btn')) return;
-                
-                state.lastAction = Date.now();
-                resetState();
-                
-                // Взгляд на точку тапа
-                const cx = window.innerWidth / 2;
-                const cy = window.innerHeight / 2;
-                const dx = e.clientX - cx;
-                const dy = e.clientY - cy;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                
-                if (dist > 0) moveEye((dx / dist) * 40, (dy / dist) * 40);
+                if (e.target.closest('.ghost-btn') || e.target.closest('.log-panel')) return;
 
-                // Мгновенный эффект расширения
-                eye.classList.add('dilate');
-                setTimeout(() => eye.classList.remove('dilate'), 800);
+                onActivity(e.clientX, e.clientY);
 
-                if (Math.random() > 0.5) log(rnd(PHRASES.action), "active");
-                
+                // Расширение зрачка
+                pupil.style.transition = 'transform 0.12s ease';
+                pupil.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    pupil.style.transition = '';
+                    pupil.style.transform = '';
+                }, 450);
+
+                if (Math.random() > 0.45) log(rnd(PHRASES.action), "active");
                 triggerGlitch();
                 spawnParticles(e.clientX, e.clientY);
+            }, { passive: true });
 
+            document.addEventListener('pointermove', (e) => {
+                if (state.mode === 'panic') return;
+                lookAt(e.clientX, e.clientY);
             }, { passive: true });
 
             document.addEventListener('keydown', () => {
                 state.lastAction = Date.now();
-                resetState();
-                if (Math.random() > 0.7) log("Я слышу твою клавиатуру.", "active");
+                if (state.mode !== 'friendly') resetToFriendly();
+                if (Math.random() > 0.7) log(rnd(PHRASES.keyboard), "sys");
             }, { passive: true });
 
             // ==========================================
-            // 5. ЦИКЛ ВРЕМЕНИ (Эскалация паранойи)
+            // 5. ЦИКЛ
             // ==========================================
             setInterval(() => {
-                const idleTime = Date.now() - state.lastAction;
-                const sessionTime = Math.floor((Date.now() - state.sessionStart) / 1000);
+                const idle = Date.now() - state.lastAction;
 
-                // --- УХУДШЕНИЕ ---
-                if (idleTime > CONFIG.panicTime && !state.isPanicking) {
+                if (idle > CONFIG.panicTime && state.mode !== 'panic') {
                     setState('panic');
-                } 
-                else if (idleTime > CONFIG.anxietyTime && !state.isAnxious && !state.isPanicking) {
+                } else if (idle > CONFIG.anxietyTime && state.mode === 'friendly') {
                     setState('anxious');
                 }
 
-                // --- ВОЗВРАТ ---
-                if (idleTime < 2000 && (state.isAnxious || state.isPanicking)) {
-                    resetState();
+                const sec = Math.floor((Date.now() - state.sessionStart) / 1000);
+                if (sec - state.lastFriendlyLog >= CONFIG.friendlyLogInterval && state.mode === 'friendly') {
+                    state.lastFriendlyLog = sec;
+                    log(rnd(PHRASES.friendly), "sys");
                 }
 
-                // --- РАЗГОВОРЫ ---
-                if (sessionTime % 20 === 0 && sessionTime > 0 && !state.isAnxious && !state.isPanicking) {
-                    log(rnd(PHRASES.friendly), "sys", CONFIG.thinkDelay);
-                }
-
-                // --- СЛУЧАЙНАЯ ЖУТЬ ---
-                if (Math.random() > 0.97 && !state.isPanicking) {
-                    log(rnd(PHRASES.weird), "warn", CONFIG.thinkDelay);
+                if (Math.random() > CONFIG.weirdChance && state.mode === 'friendly') {
+                    log(rnd(PHRASES.weird), "warn");
                     body.classList.add('anxious');
-                    setTimeout(() => { if(!state.isPanicking) body.classList.remove('anxious'); }, 2000);
+                    setTimeout(() => {
+                        if (state.mode === 'friendly') body.classList.remove('anxious');
+                    }, 1800);
                 }
 
-                // --- СПАВН КНОПОК ---
-                if (!state.isPanicking && Math.random() > 0.8) {
+                if (state.mode === 'friendly' && Math.random() > 0.93) {
                     spawnBtn(false);
                 }
-
             }, 1000);
 
             // ==========================================
             // 6. КНОПКИ
             // ==========================================
-            const normalBtns = ["Привет", "Кто ты?", "Где я?", "Что это?"];
-            const weirdBtns = ["Сзади", "Тише", "Слушай", "Не оборачивайся"];
-            const panicBtns = ["Останься", "Не уходи", "Помоги", "Вернись"];
+            function clearButtons() {
+                document.querySelectorAll('.ghost-btn').forEach(b => b.remove());
+            }
 
-            function spawnBtn(isPanic = false) {
-                if (document.querySelectorAll('.ghost-btn').length >= (isPanic ? 5 : 1)) return;
-                
-                const btn = document.createElement('button');
-                btn.className = 'ghost-btn';
-                
-                if (isPanic) {
-                    btn.textContent = rnd(panicBtns);
-                } else if (Math.random() > 0.6) {
-                    btn.textContent = rnd(weirdBtns);
-                } else {
-                    btn.textContent = rnd(normalBtns);
-                }
-                
+            function getFreePosition() {
                 const w = window.innerWidth;
                 const h = window.innerHeight;
-                // Безопасные зоны, чтобы кнопки не улетали за экран
-                const x = 20 + Math.random() * (w - 160);
-                const y = 100 + Math.random() * (h - 400);
-                
-                btn.style.left = `${x}px`;
-                btn.style.top = `${y}px`;
+                const safeTop = CONFIG.btnSafeTop;
+                const safeBottom = h - CONFIG.btnSafeBottom;
+                const safeLeft = 20;
+                const safeRight = w - 160;
 
-                btn.addEventListener('pointerdown', (e) => {
-                    e.stopPropagation();
-                    state.lastAction = Date.now();
-                    resetState();
-                    
-                    log(`> ${btn.textContent}`, "warn");
-                    triggerGlitch();
-                    spawnParticles(e.clientX, e.clientY);
-                    
-                    btn.style.transform = 'scale(0.8)';
-                    btn.style.opacity = '0';
-                    setTimeout(() => btn.remove(), 300);
-                });
+                if (safeBottom <= safeTop || safeRight <= safeLeft) return null;
 
-                spawnZone.appendChild(btn);
-                
-                if (!isPanic) {
-                    setTimeout(() => {
-                        if (btn.parentNode) {
-                            btn.style.opacity = '0';
-                            setTimeout(() => btn.remove(), 500);
-                        }
-                    }, 7000);
+                const existing = [...document.querySelectorAll('.ghost-btn')].map(b => ({
+                    x: parseFloat(b.style.left), y: parseFloat(b.style.top)
+                }));
+
+                for (let attempt = 0; attempt < 20; attempt++) {
+                    const x = safeLeft + Math.random() * (safeRight - safeLeft);
+                    const y = safeTop + Math.random() * (safeBottom - safeTop);
+                    const ok = existing.every(p => Math.hypot(p.x - x, p.y - y) > CONFIG.btnMinDist);
+                    if (ok) return { x, y };
                 }
+                return null;
+            }
+
+            function spawnBtn(isPanic = false, delay = 0) {
+                setTimeout(() => {
+                    if (!isPanic && document.querySelectorAll('.ghost-btn').length >= CONFIG.maxBtns) return;
+                    if (isPanic && document.querySelectorAll('.ghost-btn').length >= 4) return;
+
+                    const pos = getFreePosition();
+                    if (!pos) return;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'ghost-btn';
+
+                    if (isPanic) btn.textContent = rnd(PANIC_BTNS);
+                    else if (Math.random() > 0.6) btn.textContent = rnd(WEIRD_BTNS);
+                    else btn.textContent = rnd(NORMAL_BTNS);
+
+                    btn.style.left = `${pos.x}px`;
+                    btn.style.top = `${pos.y}px`;
+
+                    let clicked = false;
+                    btn.addEventListener('pointerdown', (e) => {
+                        e.stopPropagation();
+                        if (clicked) return;
+                        clicked = true;
+
+                        state.lastAction = Date.now();
+                        if (state.mode !== 'friendly') {
+                            setState('friendly');
+                        }
+
+                        log(`> ${btn.textContent}`, "warn");
+                        triggerGlitch();
+                        spawnParticles(e.clientX, e.clientY);
+
+                        btn.classList.add('fade-out');
+                        setTimeout(() => btn.remove(), 350);
+                    });
+
+                    document.body.appendChild(btn);
+
+                    if (!isPanic) {
+                        setTimeout(() => {
+                            if (btn.parentNode && !clicked) {
+                                btn.classList.add('fade-out');
+                                setTimeout(() => btn.remove(), 350);
+                            }
+                        }, 7000);
+                    }
+                }, delay);
             }
 
             // ==========================================
-            // 7. ЭФФЕКТЫ (Частицы и Глитч)
+            // 7. ЭФФЕКТЫ
             // ==========================================
             function triggerGlitch() {
-                glitchOverlay.classList.remove('glitch-active');
+                glitchOverlay.classList.remove('active');
                 void glitchOverlay.offsetWidth;
-                glitchOverlay.classList.add('glitch-active');
+                glitchOverlay.classList.add('active');
+                setTimeout(() => glitchOverlay.classList.remove('active'), 250);
             }
 
             function spawnParticles(x, y) {
-                for (let i = 0; i < 8; i++) {
+                for (let i = 0; i < 6; i++) {
                     const p = document.createElement('div');
                     p.className = 'particle';
-                    
-                    const size = 2 + Math.random() * 4;
-                    p.style.width = `${size}px`;
-                    p.style.height = `${size}px`;
-                    p.style.left = `${x}px`;
-                    p.style.top = `${y}px`;
-                    
+                    const size = 2 + Math.random() * 3;
+                    p.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
                     document.body.appendChild(p);
-                    
+
                     const angle = Math.random() * Math.PI * 2;
-                    const dist = 40 + Math.random() * 80;
+                    const dist = 30 + Math.random() * 55;
                     const tx = Math.cos(angle) * dist;
                     const ty = Math.sin(angle) * dist;
-                    
+
                     requestAnimationFrame(() => {
-                        p.style.transition = `all ${1 + Math.random()}s cubic-bezier(0.1, 0.8, 0.2, 1)`;
+                        p.style.transition = `transform ${0.8 + Math.random() * 0.4}s cubic-bezier(0.1, 0.8, 0.2, 1), opacity ${0.8 + Math.random() * 0.4}s ease`;
                         p.style.transform = `translate(${tx}px, ${ty}px) scale(0)`;
                         p.style.opacity = '0';
                     });
-                    
-                    setTimeout(() => p.remove(), 2000);
+
+                    setTimeout(() => p.remove(), 1500);
                 }
             }
 
@@ -622,16 +749,23 @@
             // ==========================================
             setTimeout(() => {
                 log("Соединение установлено.", "sys");
-                log(rnd(PHRASES.greeting), "active", CONFIG.thinkDelay);
-            }, 1000);
-            
-            setTimeout(blink, 2000);
-            randomLook();
+                log(rnd(PHRASES.greeting), "active", 1000);
+            }, 400);
+
+            scheduleBlink();
+            scheduleSakkad();
+            requestAnimationFrame(() => startEyeLoop());
 
             // Защита
-            document.addEventListener('selectstart', (e) => e.preventDefault());
-            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            document.addEventListener('selectstart', e => e.preventDefault());
+            document.addEventListener('contextmenu', e => e.preventDefault());
 
+            // Пауза анимации при уходе со страницы
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    state.lastAction = Date.now();
+                }
+            });
         })();
     </script>
 </body>
