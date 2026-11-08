@@ -7,6 +7,8 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>☉ Hello Friend — Watcher</title>
     <style>
         :root {
@@ -17,10 +19,10 @@
             --dim: #71717a;
             --accent: #e4e4e7;
 
-            --panel-bg: rgba(8, 8, 10, 0.42);
-            --panel-bg-overlay: rgba(0, 0, 0, 0.28);
-            --panel-border: rgba(255, 255, 255, 0.05);
-            --panel-glow: rgba(255, 255, 255, 0.03);
+            --panel-bg: rgba(8, 8, 10, 0.55);
+            --panel-bg-overlay: rgba(0, 0, 0, 0.35);
+            --panel-border: rgba(255, 255, 255, 0.06);
+            --panel-glow: rgba(255, 255, 255, 0.04);
 
             --term-fg: #d4d4d8;
             --term-dim: #52525b;
@@ -43,7 +45,6 @@
             --pupil-hint: #060608;
 
             --highlight: rgba(255,255,255,0.42);
-            --glint: rgba(255,255,255,0.06);
 
             --vignette: rgba(0,0,0,0.94);
             --glitch-color: rgba(255,255,255,0.10);
@@ -56,6 +57,11 @@
             --ease-eye: cubic-bezier(0.25, 1, 0.5, 1);
             --ease-blink-close: cubic-bezier(0.5, 0, 0.9, 0);
             --ease-blink-open: cubic-bezier(0.1, 0.8, 0.3, 1);
+
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -72,35 +78,38 @@
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
             transition:
                 background 1.6s var(--ease-smooth),
                 color 1s var(--ease-smooth),
-                filter 10s var(--ease-smooth),
-                transform 10s var(--ease-smooth);
+                filter 10s var(--ease-smooth);
         }
 
         body {
             background:
                 radial-gradient(circle at 50% 42%, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%),
                 var(--bg);
-            position: relative;
+            position: fixed;
+            inset: 0;
+            filter: brightness(1.00) contrast(1.03);
         }
 
-        body.calm     { filter: brightness(1.00) contrast(1.03); transform: scale(1.000); }
-        body.curious  { filter: brightness(1.04) contrast(1.05); transform: scale(1.008); }
-        body.watchful { filter: brightness(0.80) contrast(1.05) saturate(0.7); transform: scale(0.994); }
-        body.anxious  { filter: brightness(0.60) contrast(1.10) grayscale(0.55); transform: scale(0.985); }
-        body.paranoid { filter: brightness(0.42) contrast(1.15) grayscale(0.75) hue-rotate(-8deg); transform: scale(0.980); }
-        body.panic    { filter: brightness(0.24) contrast(1.20) grayscale(0.95) hue-rotate(-15deg); transform: scale(0.972); }
+        body.calm     { filter: brightness(1.00) contrast(1.03); }
+        body.curious  { filter: brightness(1.04) contrast(1.05); }
+        body.watchful { filter: brightness(0.80) contrast(1.05) saturate(0.7); }
+        body.anxious  { filter: brightness(0.60) contrast(1.10) grayscale(0.55); }
+        body.paranoid { filter: brightness(0.42) contrast(1.15) grayscale(0.75) hue-rotate(-8deg); }
+        body.panic    { filter: brightness(0.24) contrast(1.20) grayscale(0.95) hue-rotate(-15deg); }
 
         /* === СЛОИ ЭФФЕКТОВ === */
         .vignette {
             position: fixed; inset: 0; z-index: 4; pointer-events: none;
             background: radial-gradient(circle at 50% 45%,
                 transparent 24%, var(--vignette) 100%);
-            transition: background 10s var(--ease-smooth), opacity 6s ease;
+            transition: opacity 6s ease;
             opacity: 0.82;
             animation: vignette-breathe 12s ease-in-out infinite;
+            will-change: opacity;
         }
         @keyframes vignette-breathe {
             0%, 100% { opacity: 0.78; }
@@ -248,8 +257,8 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 82vmin; height: 82vmin;
-            max-width: 840px; max-height: 840px;
+            width: min(82vmin, 840px);
+            height: min(82vmin, 840px);
             pointer-events: none;
             z-index: 5;
             display: flex; justify-content: center; align-items: center;
@@ -392,6 +401,7 @@
                 0 0 8px 2px rgba(255,255,255,0.03);
             transition: transform 0.7s ease;
             transform: scale(var(--pupil-base, 1));
+            will-change: transform;
         }
 
         /* Двойной отблеск */
@@ -438,11 +448,11 @@
             animation: pupil-tremble-soft 0.6s linear infinite;
         }
         body.paranoid .pupil {
-            --pupil-base: 0.45;
+            --pupil-base: 0.48;
             animation: pupil-tremble-soft 0.3s linear infinite;
         }
         body.panic .pupil {
-            --pupil-base: 0.28;
+            --pupil-base: 0.38;
             animation: pupil-tremble-hard 0.14s linear infinite;
         }
 
@@ -456,6 +466,16 @@
             50%  { transform: translate(-1.4px, 1.4px) scale(var(--pupil-base)); }
             75%  { transform: translate(1.4px, 1.4px) scale(var(--pupil-base)); }
             100% { transform: translate(0, 0) scale(var(--pupil-base)); }
+        }
+
+        /* Клик-пульс — через отдельную анимацию, не инлайн */
+        .pupil.click-pulse {
+            animation: pupil-click 0.52s cubic-bezier(0.3, 1, 0.5, 1) !important;
+        }
+        @keyframes pupil-click {
+            0%   { transform: scale(var(--pupil-base, 1)); }
+            40%  { transform: scale(calc(var(--pupil-base, 1) * 1.32)); }
+            100% { transform: scale(var(--pupil-base, 1)); }
         }
 
         /* === ВЕКО — реалистичное моргание === */
@@ -478,9 +498,8 @@
             height: 100%;
             transition: height 0.09s var(--ease-blink-close);
         }
-        /* Двойное моргание */
-        .eyelid.closing.double {
-            animation: blink-double 0.6s var(--ease-blink-close);
+        .eyelid.double {
+            animation: blink-double 0.6s var(--ease-blink-close) forwards;
         }
         @keyframes blink-double {
             0%   { height: 0%; }
@@ -490,7 +509,6 @@
             82%  { height: 100%; }
             100% { height: 100%; }
         }
-        /* Тяжёлое моргание (в панике) */
         body.panic .eyelid,
         body.paranoid .eyelid {
             transition: height 0.55s var(--ease-blink-open);
@@ -501,7 +519,7 @@
             position: relative; z-index: 10;
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
-            padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem 1.5rem;
+            padding: calc(1.5rem + var(--safe-top)) calc(1.5rem + var(--safe-right)) calc(1.5rem + var(--safe-bottom)) calc(1.5rem + var(--safe-left));
             pointer-events: none;
         }
         .ui-layer > * { pointer-events: auto; }
@@ -530,10 +548,10 @@
             50%      { opacity: 1; }
         }
 
-        /* === ОКНО ЛОГА — улучшенное === */
+        /* === ОКНО ЛОГА === */
         .log-wrap {
             position: absolute;
-            bottom: max(1.5rem, env(safe-area-inset-bottom));
+            bottom: calc(1.5rem + var(--safe-bottom));
             left: 50%;
             transform: translateX(-50%);
             width: calc(100% - 2rem);
@@ -577,7 +595,6 @@
         }
         .log-panel::-webkit-scrollbar { display: none; }
 
-        /* Заголовок «LOG» */
         .log-label {
             position: absolute;
             top: 0.5rem; left: 1.3rem;
@@ -588,6 +605,7 @@
             opacity: 0.5;
             pointer-events: none;
             display: flex; align-items: center; gap: 0.5rem;
+            z-index: 2;
         }
         .log-live {
             display: inline-block;
@@ -646,6 +664,7 @@
             opacity: 0.55;
         }
 
+        /* === КНОПКИ === */
         .ghost-btn {
             position: fixed;
             background: var(--panel-bg);
@@ -670,6 +689,10 @@
             touch-action: manipulation;
             will-change: transform, opacity;
             opacity: 0.88;
+            max-width: calc(100vw - 40px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         @keyframes btn-breathe {
             0%, 100% { box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
@@ -743,13 +766,36 @@
             100% { opacity: 0;    transform: translate(0); }
         }
 
+        /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
         @media (max-width: 600px) {
-            .eye-container { width: 135vw; height: 135vw; }
-            .log-wrap { height: 170px; bottom: 1rem; width: calc(100% - 1.5rem); }
-            .log-panel { font-size: 0.72rem; padding: 1.2rem 1rem 0.9rem; }
+            .eye-container {
+                width: min(135vw, 135vw);
+                height: min(135vw, 135vw);
+            }
+            .log-wrap {
+                height: 170px;
+                bottom: calc(1rem + var(--safe-bottom));
+                width: calc(100% - 1.5rem);
+            }
+            .log-panel {
+                font-size: 0.72rem;
+                padding: 1.2rem 1rem 0.9rem;
+                border-radius: 14px;
+            }
             .log-label { top: 0.4rem; left: 1rem; font-size: 0.55rem; }
             .title { font-size: 0.72rem; letter-spacing: 0.32em; }
             .ghost-btn { padding: 11px 18px; font-size: 0.78rem; }
+            .ui-layer { padding: calc(1rem + var(--safe-top)) calc(1rem + var(--safe-right)) calc(1rem + var(--safe-bottom)) calc(1rem + var(--safe-left)); }
+        }
+
+        @media (max-width: 400px) {
+            .log-wrap { height: 155px; }
+            .log-panel { font-size: 0.68rem; }
+            .title { font-size: 0.66rem; letter-spacing: 0.28em; }
+        }
+
+        @media (hover: none) {
+            .ghost-btn:hover { transform: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -813,7 +859,8 @@
                 logSpeed: 24,
                 maxLogEntries: 14,
                 friendlyLogInterval: 26,
-                priorityQueueMax: 3,
+                priorityQueueMax: 5,
+                typeAbortGrace: 0,
 
                 maxBtns: 3,
                 btnMinDist: 110,
@@ -841,7 +888,11 @@
                 autoLookDurMax: 3400,
                 cursorIdleTimeout: 2600,
                 pointerThrottleMs: 16,
+                fastMoveSpeed: 1.5,
             };
+
+            const isMobile = window.matchMedia('(hover: none)').matches;
+            const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
             // =====================================================
             // ЛОР — ответы на кнопки
@@ -1101,6 +1152,7 @@
                 queue: [],
                 priorityQueue: [],
                 typing: false,
+                typingAbort: false,
                 targetX: 0, targetY: 0,
                 currentX: 0, currentY: 0,
                 rafId: null,
@@ -1111,16 +1163,22 @@
                 isPageVisible: true,
                 lastPointerMove: 0,
                 fastMoveUntil: 0,
+                prevPointerX: 0, prevPointerY: 0, prevPointerT: 0,
                 blinking: false,
                 stateTimers: [],
-                seenButtons: new Set(),
+                lastStateAdvance: now(),
             };
 
-            const schedule = (fn, ms) => {
+            function schedule(fn, ms) {
                 const id = setTimeout(fn, ms);
                 state.stateTimers.push(id);
                 return id;
-            };
+            }
+
+            function flushStateTimers() {
+                state.stateTimers.forEach(clearTimeout);
+                state.stateTimers = [];
+            }
 
             // =====================================================
             // ЛОГ
@@ -1131,7 +1189,12 @@
                 const item = { text, type, delay };
                 if (priority) {
                     state.priorityQueue.push(item);
-                    if (!state.typing) processQueue();
+                    if (state.priorityQueue.length > CONFIG.priorityQueueMax) {
+                        state.priorityQueue.shift();
+                    }
+                    // Прерываем текущую печать, если она есть — ответ важнее
+                    if (state.typing) state.typingAbort = true;
+                    else processQueue();
                 } else {
                     state.queue.push(item);
                     if (!state.typing) processQueue();
@@ -1139,12 +1202,12 @@
             }
 
             function logAnswer(pairs) {
-                // Ответ приоритетный — не теряется
                 const [text, type] = rnd(pairs);
                 log(text, type, 200, true);
             }
 
             function processQueue() {
+                if (state.typing) return;
                 const hasPriority = state.priorityQueue.length > 0;
                 const hasNormal = state.queue.length > 0;
                 if (!hasPriority && !hasNormal) {
@@ -1152,13 +1215,28 @@
                     return;
                 }
                 state.typing = true;
+                state.typingAbort = false;
 
                 const { text, type, delay } = hasPriority
                     ? state.priorityQueue.shift()
                     : state.queue.shift();
 
                 setTimeout(() => {
-                    if (!text) { processQueue(); return; }
+                    if (state.typingAbort) {
+                        state.typingAbort = false;
+                        state.typing = false;
+                        // Возвращаем приоритетное сообщение в начало (если ещё есть шанс)
+                        if (text) {
+                            state.priorityQueue.unshift({ text, type, delay });
+                        }
+                        processQueue();
+                        return;
+                    }
+                    if (!text) {
+                        state.typing = false;
+                        processQueue();
+                        return;
+                    }
 
                     const t = new Date().toLocaleTimeString('en-US', {
                         hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
@@ -1174,7 +1252,6 @@
                     logPanel.appendChild(el);
                     logPanel.scrollTop = logPanel.scrollHeight;
 
-                    // Затухание старых записей
                     const entries = logPanel.querySelectorAll('.log-entry');
                     entries.forEach((e, i) => {
                         if (i < entries.length - 4) e.classList.add('fade-old');
@@ -1185,16 +1262,25 @@
                     let i = 0;
                     const speed = state.isPageVisible ? CONFIG.logSpeed : 2;
 
-                    (function typeChar() {
+                    const typeChar = () => {
+                        if (state.typingAbort) {
+                            cursor.remove();
+                            state.typingAbort = false;
+                            state.typing = false;
+                            processQueue();
+                            return;
+                        }
                         if (i < text.length) {
                             msg.textContent += text.charAt(i++);
                             logPanel.scrollTop = logPanel.scrollHeight;
                             setTimeout(typeChar, speed + Math.random() * 18);
                         } else {
                             cursor.remove();
+                            state.typing = false;
                             setTimeout(processQueue, 550);
                         }
-                    })();
+                    };
+                    typeChar();
 
                     while (logPanel.children.length > CONFIG.maxLogEntries) {
                         logPanel.removeChild(logPanel.firstChild);
@@ -1291,7 +1377,7 @@
                 }, rand(CONFIG.sakkadDelayMin, CONFIG.sakkadDelayMax));
             }
 
-            // === Моргание — улучшенное ===
+            // === Моргание ===
             function blink() {
                 if (!state.isPageVisible || state.blinking) {
                     scheduleBlink();
@@ -1302,17 +1388,22 @@
                 const isHeavy = state.mode === 'panic' || state.mode === 'paranoid';
                 const isDouble = Math.random() < CONFIG.doubleBlinkChance && !isHeavy;
 
+                const finish = () => {
+                    eyelid.classList.remove('closing', 'double');
+                    state.blinking = false;
+                    eyelid.removeEventListener('animationend', finish);
+                };
+
                 if (isDouble) {
-                    // Двойное моргание
-                    eyelid.classList.add('closing', 'double');
-                    setTimeout(() => {
-                        eyelid.classList.remove('closing', 'double');
-                        state.blinking = false;
-                    }, 620);
+                    eyelid.classList.add('double');
+                    // fallback — если animationend не сработает
+                    const guard = setTimeout(finish, 800);
+                    eyelid.addEventListener('animationend', () => {
+                        clearTimeout(guard);
+                        finish();
+                    }, { once: true });
                 } else {
-                    // Обычное моргание
                     eyelid.classList.add('closing');
-                    // Задержка в закрытом состоянии
                     const holdTime = isHeavy ? 160 : 40 + Math.random() * 60;
                     setTimeout(() => {
                         eyelid.classList.remove('closing');
@@ -1339,6 +1430,7 @@
                 if (state.mode === mode) return;
                 const prev = state.mode;
                 state.mode = mode;
+                flushStateTimers();
                 body.classList.remove('calm', 'curious', 'watchful', 'anxious', 'paranoid', 'panic');
                 body.classList.add(mode);
                 title.classList.toggle('whisper', mode === 'anxious' || mode === 'paranoid' || mode === 'panic');
@@ -1374,10 +1466,12 @@
                 }
 
                 state.autoLookOverrideUntil = 0;
+                state.lastStateAdvance = now();
             }
 
             function onActivity(x, y) {
                 state.lastAction = now();
+                state.lastStateAdvance = now();
                 if (typeof x === 'number' && typeof y === 'number') {
                     lookAtCursor(x, y);
                 }
@@ -1398,12 +1492,12 @@
                 onActivity(e.clientX, e.clientY);
 
                 if (pupil && !prefersReducedMotion) {
-                    pupil.style.transition = 'transform 0.18s ease';
-                    pupil.style.transform = 'scale(1.35)';
-                    setTimeout(() => {
-                        pupil.style.transition = '';
-                        pupil.style.transform = '';
-                    }, 520);
+                    pupil.classList.remove('click-pulse');
+                    void pupil.offsetWidth;
+                    pupil.classList.add('click-pulse');
+                    pupil.addEventListener('animationend', () => {
+                        pupil.classList.remove('click-pulse');
+                    }, { once: true });
                 }
 
                 if (Math.random() > 0.55) log(rnd(PHRASES.action), "active");
@@ -1414,19 +1508,43 @@
             document.addEventListener('pointermove', (e) => {
                 const t = now();
                 if (t - state.lastPointerMove < CONFIG.pointerThrottleMs) return;
-                const dt = t - state.lastPointerMove;
                 state.lastPointerMove = t;
-                if (dt < 40 && (state.mode === 'calm' || state.mode === 'curious')) {
-                    state.fastMoveUntil = t + 900;
+
+                // Детект быстрого движения по скорости, а не по времени
+                if (state.prevPointerT) {
+                    const dt = t - state.prevPointerT;
+                    if (dt > 0 && dt < 100) {
+                        const dist = Math.hypot(e.clientX - state.prevPointerX, e.clientY - state.prevPointerY);
+                        const speed = dist / dt;
+                        if (speed > CONFIG.fastMoveSpeed && (state.mode === 'calm' || state.mode === 'curious')) {
+                            state.fastMoveUntil = t + 900;
+                        }
+                    }
                 }
+                state.prevPointerX = e.clientX;
+                state.prevPointerY = e.clientY;
+                state.prevPointerT = t;
                 state.lastCursorMove = t;
+
                 if (state.mode === 'panic') return;
                 lookAtCursor(e.clientX, e.clientY);
+            }, { passive: true });
+
+            // Тач-события для мобил — движение пальца тоже двигает взгляд
+            document.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                if (!touch) return;
+                state.lastAction = now();
+                state.lastStateAdvance = now();
+                state.lastCursorMove = now();
+                if (state.mode === 'panic') return;
+                lookAtCursor(touch.clientX, touch.clientY);
             }, { passive: true });
 
             document.addEventListener('keydown', (e) => {
                 state.lastAction = now();
                 state.lastCursorMove = now();
+                state.lastStateAdvance = now();
                 if (state.mode === 'paranoid' || state.mode === 'anxious' || state.mode === 'panic') {
                     setState('calm');
                 }
@@ -1440,8 +1558,6 @@
             // =====================================================
             // ЦИКЛ СОСТОЯНИЙ
             // =====================================================
-            let lastStateAdvance = now();
-
             function getNextState(current) {
                 const idx = STATE_ORDER.indexOf(current);
                 if (Math.random() < 0.10 && idx + 2 < STATE_ORDER.length) {
@@ -1454,7 +1570,7 @@
                 if (!state.isPageVisible) return;
 
                 const idle = now() - state.lastAction;
-                const elapsed = now() - lastStateAdvance;
+                const elapsed = now() - state.lastStateAdvance;
 
                 let targetMode = 'calm';
                 if (idle > 45000) targetMode = 'panic';
@@ -1466,7 +1582,7 @@
                 if (state.fastMoveUntil > now() && state.mode === 'curious') {
                     if (Math.random() < 0.35) {
                         setState('anxious');
-                        lastStateAdvance = now();
+                        state.lastStateAdvance = now();
                     }
                 }
 
@@ -1475,7 +1591,7 @@
                         const next = getNextState(state.mode);
                         if (STATE_ORDER.indexOf(next) <= STATE_ORDER.indexOf(targetMode)) {
                             setState(next);
-                            lastStateAdvance = now();
+                            state.lastStateAdvance = now();
                         }
                     }
                 }
@@ -1490,31 +1606,13 @@
                     }, 380);
                 }
 
-                // Ложные логи
-                if (Math.random() < CONFIG.falseLogChance) {
-                    log(rnd(PHRASES.falseLogs), "glitch");
-                }
+                if (Math.random() < CONFIG.falseLogChance) log(rnd(PHRASES.falseLogs), "glitch");
+                if (Math.random() < CONFIG.hallucinationChance * 0.4) log(rnd(PHRASES.hallucinations), "glitch", 300);
+                if (Math.random() < CONFIG.whisperChance) log(rnd(PHRASES.whispers), "whisper", 400);
 
-                // Галлюцинации
-                if (Math.random() < CONFIG.hallucinationChance * 0.4) {
-                    log(rnd(PHRASES.hallucinations), "glitch", 300);
-                }
+                if (Math.random() < CONFIG.snowChance && state.mode !== 'panic') triggerSnow();
+                if (Math.random() < CONFIG.ashChance && (state.mode === 'paranoid' || state.mode === 'panic')) triggerAsh();
 
-                // Шёпот
-                if (Math.random() < CONFIG.whisperChance) {
-                    log(rnd(PHRASES.whispers), "whisper", 400);
-                }
-
-                // Снег
-                if (Math.random() < CONFIG.snowChance && state.mode !== 'panic') {
-                    triggerSnow();
-                }
-                // Пепел
-                if (Math.random() < CONFIG.ashChance && (state.mode === 'paranoid' || state.mode === 'panic')) {
-                    triggerAsh();
-                }
-
-                // Дружелюбные
                 const sec = Math.floor((now() - state.sessionStart) / 1000);
                 if (sec - state.lastFriendlyLog >= CONFIG.friendlyLogInterval &&
                     (state.mode === 'calm' || state.mode === 'curious')) {
@@ -1523,7 +1621,6 @@
                     log(rnd(arr), "sys");
                 }
 
-                // Кнопки
                 if ((state.mode === 'calm' || state.mode === 'curious') && Math.random() > 0.93) {
                     spawnBtn(false);
                 }
@@ -1533,7 +1630,7 @@
             }
 
             // =====================================================
-            // КНОПКИ — с ответами по тексту
+            // КНОПКИ
             // =====================================================
             function clearButtons() {
                 document.querySelectorAll('.ghost-btn').forEach(b => b.remove());
@@ -1545,16 +1642,17 @@
                 const safeTop = CONFIG.btnSafeTop;
                 const safeBottom = h - CONFIG.btnSafeBottom;
                 const safeLeft = 20;
-                const safeRight = w - 160;
+                const safeRight = Math.max(safeLeft + 50, w - (isMobile ? 100 : 160));
                 if (safeBottom <= safeTop || safeRight <= safeLeft) return null;
                 const existing = [...document.querySelectorAll('.ghost-btn')].map(b => ({
                     x: parseFloat(b.style.left) || 0,
                     y: parseFloat(b.style.top) || 0,
                 }));
+                const minDist = isMobile ? 80 : CONFIG.btnMinDist;
                 for (let attempt = 0; attempt < 20; attempt++) {
                     const x = safeLeft + Math.random() * (safeRight - safeLeft);
                     const y = safeTop + Math.random() * (safeBottom - safeTop);
-                    const ok = existing.every(p => Math.hypot(p.x - x, p.y - y) > CONFIG.btnMinDist);
+                    const ok = existing.every(p => Math.hypot(p.x - x, p.y - y) > minDist);
                     if (ok) return { x, y };
                 }
                 return null;
@@ -1562,6 +1660,9 @@
 
             function spawnBtn(isPanic = false, delay = 0, phantom = false) {
                 setTimeout(() => {
+                    // Проверка состояния перед добавлением (фикс «зависших» кнопок)
+                    if (isPanic && state.mode !== 'panic') return;
+
                     const current = document.querySelectorAll('.ghost-btn').length;
                     if (isPanic && current >= 4) return;
                     if (!isPanic && current >= CONFIG.maxBtns) return;
@@ -1582,7 +1683,6 @@
 
                     let clicked = false;
 
-                    // Фантомные исчезают при наведении (и на мобиле)
                     if (phantom) {
                         const vanish = () => {
                             if (clicked) return;
@@ -1595,32 +1695,42 @@
                         btn.addEventListener('touchstart', vanish, { once: true, passive: true });
                     }
 
-                    btn.addEventListener('pointerdown', (e) => {
+                    const handlePress = (e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         if (clicked) return;
                         clicked = true;
 
                         state.lastAction = now();
                         state.lastCursorMove = now();
+                        state.lastStateAdvance = now();
                         state.autoLookOverrideUntil = now() + 2000;
 
                         if (state.mode !== 'calm') setState('calm');
 
-                        // Приоритетный ответ по тексту кнопки
                         const answer = BUTTON_ANSWERS[btn.textContent];
-                        log(`> ${btn.textContent}`, "warn");
+                        log(`> ${btn.textContent}`, "warn", 0, true);
                         if (answer) {
                             logAnswer(answer);
                         } else if (Math.random() > 0.5) {
-                            log(rnd(PHRASES.btnClick), "sys");
+                            log(rnd(PHRASES.btnClick), "sys", 0, true);
                         }
 
                         triggerGlitch();
-                        spawnParticles(e.clientX, e.clientY);
+                        const cx = e.clientX || e.touches?.[0]?.clientX;
+                        const cy = e.clientY || e.touches?.[0]?.clientY;
+                        if (typeof cx === 'number' && typeof cy === 'number') spawnParticles(cx, cy);
 
                         btn.classList.add('fade-out');
                         setTimeout(() => btn.remove(), 400);
-                    });
+                    };
+
+                    btn.addEventListener('pointerdown', handlePress);
+                    // Fallback для старых браузеров
+                    btn.addEventListener('touchstart', (e) => {
+                        if (e.cancelable) e.preventDefault();
+                        handlePress(e);
+                    }, { passive: false });
 
                     document.body.appendChild(btn);
 
@@ -1669,7 +1779,7 @@
                 }
             }
 
-            function spawnDust(count = 12) {
+            function spawnDust(count = isMobile ? 8 : 12) {
                 if (prefersReducedMotion) return;
                 for (let i = 0; i < count; i++) {
                     const d = document.createElement('div');
@@ -1689,7 +1799,8 @@
                 if (snowLayer.classList.contains('on')) return;
                 snowLayer.classList.add('on');
                 snowLayer.innerHTML = '';
-                for (let i = 0; i < 22; i++) {
+                const count = isMobile ? 14 : 22;
+                for (let i = 0; i < count; i++) {
                     const f = document.createElement('div');
                     f.className = 'snowflake';
                     const size = 1.5 + Math.random() * 2.5;
@@ -1712,7 +1823,8 @@
                 if (ashLayer.classList.contains('on')) return;
                 ashLayer.classList.add('on');
                 ashLayer.innerHTML = '';
-                for (let i = 0; i < 18; i++) {
+                const count = isMobile ? 12 : 18;
+                for (let i = 0; i < count; i++) {
                     const a = document.createElement('div');
                     a.className = 'ash';
                     a.style.left = `${Math.random() * 100}%`;
@@ -1735,6 +1847,9 @@
                 if (document.hidden) {
                     state.lastAction = now();
                     state.queue = [];
+                    state.priorityQueue = [];
+                    state.typing = false;
+                    state.typingAbort = false;
                 } else {
                     setTimeout(() => {
                         if (!state.blinking) {
@@ -1745,6 +1860,7 @@
                     log("Ты вернулся.", "ok", 400, true);
                     state.lastAction = now();
                     state.lastCursorMove = now();
+                    state.lastStateAdvance = now();
                     if (state.mode === 'panic' || state.mode === 'paranoid' || state.mode === 'anxious') {
                         setState('calm');
                     } else if (state.mode === 'watchful') {
@@ -1784,6 +1900,11 @@
                 triggerGlitch();
                 log("копирование запрещено.", "err", 0, true);
             });
+
+            // Дополнительная защита от случайного pull-to-refresh на мобиле
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 1) e.preventDefault();
+            }, { passive: false });
 
         })();
     </script>
